@@ -78,18 +78,18 @@
 
             if (registered)
             {
-                Snackbar.Add("✅ Registration successful", Severity.Success);
+                Snackbar.Add("Registration successful", Severity.Success);
          
                 Nav.NavigateTo("/login");
             }
             else
             {
-                Snackbar.Add("❌ Username already exists", Severity.Error);
+                Snackbar.Add(" Username already exists", Severity.Error);
             }
         }
         else
         {
-            Snackbar.Add("❌ Please fix validation errors", Severity.Error);
+            Snackbar.Add(" Please fix validation errors", Severity.Error);
         }
     }
 
