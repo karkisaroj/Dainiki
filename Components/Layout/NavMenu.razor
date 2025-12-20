@@ -1,0 +1,32 @@
+﻿@inject AuthService Auth
+
+<MudNavMenu>
+    @if (Auth.IsLoggedIn)
+    {
+        <MudNavLink Href="/dashboard">Dashboard</MudNavLink>
+        <MudNavLink Href="/journalentry">Entries</MudNavLink>
+        <MudNavGroup Title="Settings" Expanded="true">
+            <MudNavLink Href="/theme">Users</MudNavLink>
+            <MudNavLink Href="/security">Security</MudNavLink>
+        </MudNavGroup>
+        <MudNavLink Href="/about">About</MudNavLink>
+        <MudNavLink Href="/logout">Logout</MudNavLink>
+    }
+    else
+    {
+        <MudNavLink Href="/register">Register</MudNavLink>
+        <MudNavLink Href="/login">Login</MudNavLink>
+    }
+</MudNavMenu>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Auth.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        Auth.OnChange -= StateHasChanged;
+    }
+}

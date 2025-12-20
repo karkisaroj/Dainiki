@@ -1,0 +1,19 @@
+﻿@page "/"
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (Auth.IsLoggedIn)
+        {
+            Nav.NavigateTo("/dashboard");
+            StateHasChanged();
+        }
+      
+        else
+        {
+            Nav.NavigateTo("/login");
+        }
+    }
+}

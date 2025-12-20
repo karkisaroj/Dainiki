@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Dainiki.Components.Services
+{
+    internal static class Constants
+    {
+
+        public const string DatabaseFilename = "Dainiki.db";
+
+    
+        public static string DatabasePath =>
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                         DatabaseFilename);
+    }
+
+}

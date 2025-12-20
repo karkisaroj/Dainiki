@@ -1,0 +1,56 @@
+﻿@page "/login"
+@using Dainiki.Components.Models
+@using Dainiki.Components.Services
+@inject AuthService Auth
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<MudPaper Class="pa-4 mx-auto" MaxWidth="400px">
+    <MudText Typo="Typo.h5" Class="mb-4">Login</MudText>
+
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+        <MudTextField T="string" Label="Username" @bind-Value="loginModel.Username"
+                      Required="true" RequiredError="Username is required!" />
+
+        <MudTextField T="string" Label="Password" @bind-Value="loginModel.Password"
+                      InputType="InputType.Password"
+                      Required="true" RequiredError="Password is required!" />
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)"
+                   Class="mt-3" OnClick="HandleLogin">
+            Login
+        </MudButton>
+    </MudForm>
+</MudPaper>
+
+@code {
+    private MudForm form;
+    private bool success;
+    private string[] errors = { };
+    private LoginModel loginModel = new();
+
+    private async Task HandleLogin()
+    {
+        await form.Validate();
+
+        if (success)
+        {
+            var loggedIn = Auth.Login(loginModel.Username, loginModel.Password);
+
+            if (loggedIn)
+            {
+                Snackbar.Add("✅ Login successful", Severity.Success);
+                Auth.Login(loginModel.Username, loginModel.Password);
+                Nav.NavigateTo("/dashboard");
+            }
+            else
+            {
+                Snackbar.Add("❌ Invalid username or password", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("❌ Please fix validation errors", Severity.Error);
+        }
+    }
+}
