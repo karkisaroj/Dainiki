@@ -1,71 +1,119 @@
 ﻿@page "/register"
-
 @using Dainiki.Components.Models
 @using Dainiki.Components.Services
 @inject AuthService Auth
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
 
-<MudGrid>
-    <MudItem xs="12" sm="7">
-        <MudPaper Class="pa-4">
-            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-                <MudTextField T="string" Label="First Name" @bind-Value="registerModel.FirstName"
-                              Required="true" RequiredError="First name is required!" />
+<MudPaper Class="pa-8 mx-auto" Style="max-width: 600px; box-shadow: none; border: 1px solid #e0e0e0; margin-top: 24px;">
+    <MudText Typo="Typo.h4" Class="mb-8" Style="font-weight: 400; text-align: center; padding-top: 8px;">
+        Register
+    </MudText>
 
-                <MudTextField T="string" Label="Username" @bind-Value="registerModel.Username"
-                              Required="true" RequiredError="Username is required!" />
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+        <MudTextField T="string"
+                      Label="First name"
+                      @bind-Value="registerModel.FirstName"
+                      Required="true"
+                      RequiredError="First name is required"
+                      MaxLength="8"
+                      Counter="8"
+                      Variant="Variant.Outlined"
+                      Class="mb-2" />
+        <MudText Typo="Typo.caption" Class="mb-4" Style="color: #666;">
+            Max 8 characters
+        </MudText>
 
-                <MudTextField T="string" Label="Password" @bind-Value="registerModel.Password"
-                              InputType="InputType.Password"
-                              Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))"
-                              Required="true" RequiredError="Password is required!" />
+        <MudTextField T="string"
+                      Label="Username"
+                      @bind-Value="registerModel.Username"
+                      Required="true"
+                      RequiredError="Username is required"
+                      Variant="Variant.Outlined"
+                      Class="mb-6" />
 
-                <MudTextField T="string" Label="Confirm Password" @bind-Value="registerModel.ConfirmPassword"
-                              InputType="InputType.Password"
-                              Validation="@(new Func<string, string>(PasswordMatch))" />
+        <MudTextField T="string"
+                      Label="Password"
+                      @bind-Value="registerModel.Password"
+                      InputType="InputType.Password"
+                      Required="true"
+                      RequiredError="Password is required"
+                      Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))"
+                      Variant="Variant.Outlined"
+                      Class="mb-2" />
+        <MudText Typo="Typo.caption" Class="mb-4" Style="color: #666;">
+            Choose a strong password
+        </MudText>
 
-                <div class="d-flex align-center justify-space-between mt-3">
-                    <MudCheckBox T="bool" @bind-Value="agree" Required="true" RequiredError="You must agree"
-                                 Label="I agree!" />
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)"
-                               Class="ml-auto" OnClick="HandleRegister">
-                        Register
-                    </MudButton>
-                </div>
-            </MudForm>
-        </MudPaper>
+        <MudTextField T="string"
+                      Label="Confirm Password"
+                      @bind-Value="registerModel.ConfirmPassword"
+                      InputType="InputType.Password"
+                      Required="true"
+                      RequiredError="Please confirm your password"
+                      Validation="@(new Func<string, string>(PasswordMatch))"
+                      Variant="Variant.Outlined"
+                      Class="mb-2" />
+        <MudText Typo="Typo.caption" Class="mb-6" Style="color: #666;">
+            Repeat the password
+        </MudText>
 
-        <MudPaper Class="pa-4 mt-4">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => form.Validate())">
-                Validate
-            </MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(() => form.ResetAsync())" Class="mx-2">
-                Reset
-            </MudButton>
-            <MudButton Variant="Variant.Filled" OnClick="@(() => form.ResetValidation())">
-                Reset Validation
-            </MudButton>
-        </MudPaper>
-    </MudItem>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Dark"
+                   Disabled="@(!success)"
+                   OnClick="HandleRegister"
+                   FullWidth="true"
+                   Style="text-transform: uppercase; font-weight: 500; padding: 12px 24px;">
+            REGISTER
+        </MudButton>
 
-    <MudItem xs="12" sm="5">
-        <MudPaper Class="pa-4 mud-height-full">
-            <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+        <div class="mt-4 text-center">
+            <MudText Typo="Typo.body2" Style="color: #666;">
+                Already have an account?
+                <MudLink Href="/login" Style="color: #6366f1; text-decoration: none; font-weight: 500;">
+                    Login
+                </MudLink>
+            </MudText>
+        </div>
+    </MudForm>
+
+    <MudDivider Class="my-6" />
+
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight: 500; color: #333;">
+        Validation Summary
+    </MudText>
+
+    @if (errors?.Length > 0)
+    {
+        <div Style="background-color: #ffebee; border-radius: 4px; padding: 12px; margin-bottom: 8px;">
             @foreach (var error in errors)
             {
-                <MudText Color="@Color.Error">@error</MudText>
+                <MudText Typo="Typo.body2" Style="color: #c62828; margin-bottom: 4px;">
+                    • @error
+                </MudText>
             }
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+        </div>
+    }
+    else if (success)
+    {
+        <MudText Typo="Typo.body2" Style="color: #2e7d32; text-align: center; font-style: italic;">
+            ✓ Form is valid. Ready to submit.
+        </MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Style="color: #666; text-align: center; font-style: italic;">
+            Fill out the form correctly to see the success message.
+        </MudText>
+    }
+</MudPaper>
 
 @code {
-    private MudForm form;
+    private MudForm? form;
     private bool success;
     private string[] errors = { };
     private bool agree;
-    
+
     private RegisterModel registerModel = new();
 
     private async Task HandleRegister()
@@ -75,21 +123,20 @@
         if (success)
         {
             var registered = Auth.Register(registerModel);
-
             if (registered)
             {
-                Snackbar.Add("Registration successful", Severity.Success);
-         
+                Snackbar.Add("✅ Registration successful! Please login.", Severity.Success);
+
                 Nav.NavigateTo("/login");
             }
             else
             {
-                Snackbar.Add(" Username already exists", Severity.Error);
+                Snackbar.Add("❌ Username already exists", Severity.Error);
             }
         }
         else
         {
-            Snackbar.Add(" Please fix validation errors", Severity.Error);
+            Snackbar.Add("❌ Please fix validation errors", Severity.Error);
         }
     }
 

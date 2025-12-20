@@ -5,22 +5,85 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
 
-<MudPaper Class="pa-4 mx-auto" MaxWidth="400px">
-    <MudText Typo="Typo.h5" Class="mb-4">Login</MudText>
+<MudPaper Class="pa-8 mx-auto" Style="max-width: 600px; box-shadow: none; border: 1px solid #e0e0e0; margin-top: 24px;">
+    <MudText Typo="Typo.h4" Class="mb-8" Style="font-weight: 400; text-align: center; padding-top: 8px;">
+        Login
+    </MudText>
 
     <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-        <MudTextField T="string" Label="Username" @bind-Value="loginModel.Username"
-                      Required="true" RequiredError="Username is required!" />
+        <MudTextField T="string"
+                      Label="Username"
+                      @bind-Value="loginModel.Username"
+                      Required="true"
+                      RequiredError="Username is required"
+                      Variant="Variant.Outlined"
+                      Class="mb-6" />
 
-        <MudTextField T="string" Label="Password" @bind-Value="loginModel.Password"
+        <MudTextField T="string"
+                      Label="Password"
+                      @bind-Value="loginModel.Password"
                       InputType="InputType.Password"
-                      Required="true" RequiredError="Password is required!" />
+                      Required="true"
+                      RequiredError="Password is required"
+                      Variant="Variant.Outlined"
+                      Class="mb-2" />
 
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)"
-                   Class="mt-3" OnClick="HandleLogin">
-            Login
+        <div class="d-flex justify-end mb-6">
+            <MudLink Href="/forgot-password"
+                     Typo="Typo.body2"
+                     Style="color: #6366f1; text-decoration: none;">
+                Forgot password?
+            </MudLink>
+        </div>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Dark"
+                   Disabled="@(!success)"
+                   OnClick="HandleLogin"
+                   FullWidth="true"
+                   Style="text-transform: uppercase; font-weight: 500; padding: 12px 24px;">
+            LOGIN
         </MudButton>
+
+        <div class="mt-4 text-center">
+            <MudText Typo="Typo.body2" Style="color: #666;">
+                Don't have an account?
+                <MudLink Href="/register" Style="color: #6366f1; text-decoration: none; font-weight: 500;">
+                    Register
+                </MudLink>
+            </MudText>
+        </div>
     </MudForm>
+
+    <MudDivider Class="my-6" />
+
+    <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight: 500; color: #333;">
+        Validation Summary
+    </MudText>
+
+    @if (errors?.Length > 0)
+    {
+        <div Style="background-color: #ffebee; border-radius: 4px; padding: 12px; margin-bottom: 8px;">
+            @foreach (var error in errors)
+            {
+                <MudText Typo="Typo.body2" Style="color: #c62828; margin-bottom: 4px;">
+                    • @error
+                </MudText>
+            }
+        </div>
+    }
+    else if (success)
+    {
+        <MudText Typo="Typo.body2" Style="color: #2e7d32; text-align: center; font-style: italic;">
+            ✓ Form is valid. Ready to submit.
+        </MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Style="color: #666; text-align: center; font-style: italic;">
+            Fill out the form correctly to see the success message.
+        </MudText>
+    }
 </MudPaper>
 
 @code {
@@ -36,11 +99,9 @@
         if (success)
         {
             var loggedIn = Auth.Login(loginModel.Username, loginModel.Password);
-
             if (loggedIn)
             {
                 Snackbar.Add("✅ Login successful", Severity.Success);
-                Auth.Login(loginModel.Username, loginModel.Password);
                 Nav.NavigateTo("/dashboard");
             }
             else

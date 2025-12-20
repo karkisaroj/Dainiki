@@ -1,21 +1,32 @@
 ﻿@inject AuthService Auth
 
-<MudNavMenu>
-    @if (Auth.IsLoggedIn)
+<MudNavMenu Class="d-flex flex-column justify-space-between pa-2" Style="height: 100%;">
+    <div>
+        <MudText Typo="Typo.h6" Class="mb-4 text-center">Dainiki</MudText>
+        <MudDivider Class="mb-4" />
+
+        @if (Auth.IsLoggedIn)
+        {
+            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" Class="mb-2">Dashboard</MudNavLink>
+            <MudNavLink Href="/journalentry" Icon="@Icons.Material.Filled.Book" Class="mb-2">Entries</MudNavLink>
+
+            <MudNavGroup Title="Settings" Expanded="true" Icon="@Icons.Material.Filled.Settings" Class="mb-2">
+                <MudNavLink Href="/theme" Icon="@Icons.Material.Filled.People">Users</MudNavLink>
+                <MudNavLink Href="/security" Icon="@Icons.Material.Filled.Security">Security</MudNavLink>
+            </MudNavGroup>
+
+            <MudNavLink Href="/about" Icon="@Icons.Material.Filled.Info" Class="mb-2">About</MudNavLink>
+            <MudNavLink Href="/logout" Icon="@Icons.Material.Filled.Logout" Class="mb-2">Logout</MudNavLink>
+        }
+    </div>
+
+    @if (!Auth.IsLoggedIn)
     {
-        <MudNavLink Href="/dashboard">Dashboard</MudNavLink>
-        <MudNavLink Href="/journalentry">Entries</MudNavLink>
-        <MudNavGroup Title="Settings" Expanded="true">
-            <MudNavLink Href="/theme">Users</MudNavLink>
-            <MudNavLink Href="/security">Security</MudNavLink>
-        </MudNavGroup>
-        <MudNavLink Href="/about">About</MudNavLink>
-        <MudNavLink Href="/logout">Logout</MudNavLink>
-    }
-    else
-    {
-        <MudNavLink Href="/register">Register</MudNavLink>
-        <MudNavLink Href="/login">Login</MudNavLink>
+        <div>
+            <MudDivider Class="mb-2" />
+            <MudNavLink Href="/register" Icon="@Icons.Material.Filled.PersonAdd" Class="mb-2">Register</MudNavLink>
+            <MudNavLink Href="/login" Icon="@Icons.Material.Filled.Login" Class="mb-2">Login</MudNavLink>
+        </div>
     }
 </MudNavMenu>
 

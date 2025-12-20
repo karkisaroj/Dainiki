@@ -1,7 +1,6 @@
 ﻿using System;
 using Dainiki.Components.Models;
 using Dainiki.Components.Database;
-
 namespace Dainiki.Components.Services
 {
     public class AuthService
@@ -20,11 +19,11 @@ namespace Dainiki.Components.Services
         {
             if (_db.GetUser(model.Username) != null)
                 return false;
-
             var user = new User
             {
+                FirstName = model.Username,
                 Username = model.Username,
-                Password = model.Password 
+                Password = model.Password
             };
             _db.RegisterUser(user);
             return true;
@@ -35,20 +34,21 @@ namespace Dainiki.Components.Services
             var user = _db.GetUser(username);
             if (user == null || user.Password != password)
                 return false;
-           
+
             IsLoggedIn = true;
-            NotifyStateChanged();
             CurrentUser = username;
-            
+            NotifyStateChanged();  
+
             return true;
         }
+
         private void NotifyStateChanged() => OnChange?.Invoke();
+
         public void Logout()
         {
             IsLoggedIn = false;
             CurrentUser = null;
             NotifyStateChanged();
-            
         }
     }
 }
