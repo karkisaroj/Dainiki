@@ -101,17 +101,17 @@
             var loggedIn = Auth.Login(loginModel.Username, loginModel.Password);
             if (loggedIn)
             {
-                Snackbar.Add("✅ Login successful", Severity.Success);
+                Snackbar.Add(" Login successful", Severity.Success);
                 Nav.NavigateTo("/dashboard");
             }
             else
             {
-                Snackbar.Add("❌ Invalid username or password", Severity.Error);
+                Snackbar.Add(" Invalid username or password", Severity.Error);
             }
         }
         else
         {
-            Snackbar.Add("❌ Please fix validation errors", Severity.Error);
+            Snackbar.Add(" Please fix validation errors", Severity.Error);
         }
     }
 }

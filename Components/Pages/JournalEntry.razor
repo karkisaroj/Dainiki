@@ -1,6 +1,122 @@
 ﻿@page "/journalentry"
-<h3>JournalEntry</h3>
+@using MudBlazor
+@inject IJSRuntime JS
+
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+
+    <MudText Typo="Typo.h5">New Entry - @DateTime.UtcNow.ToString("MMMM dd, yyyy")</MudText>
+
+    <MudTextField @bind-Value="Title" Label="Title" Variant="Variant.Outlined" FullWidth="true" />
+
+    <MudText Typo="Typo.body2" >Content</MudText>
+    <div id="quill-editor" style="height: 300px; background-color: white;"></div>
+    <input type="hidden" @bind="Content" />
+
+    <MudText Typo="Typo.body2" >How did you feel?</MudText>
+
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="string" Label="Primary Mood (Required):" @bind-Value="PrimaryMood"
+                       Variant="Variant.Outlined" FullWidth="true" Margin="Margin.Dense">
+                @foreach (var mood in PrimaryMoods)
+                {
+                    <MudSelectItem Value="@mood">@mood</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="string" Label="Secondary Moods (Optional):" @bind-SelectedValues="SecondaryMoods"
+                       MultiSelection="true" Variant="Variant.Outlined" FullWidth="true" Margin="Margin.Dense">
+                @foreach (var mood in SecondaryMoodOptions)
+                {
+                    <MudSelectItem Value="@mood">@mood</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+
+    <MudSelect T="string" Label="Phase of Life" @bind-Value="PhaseOfLife" Variant="Variant.Outlined" FullWidth="true">
+        @foreach (var phase in LifePhases)
+        {
+            <MudSelectItem Value="@phase">@phase</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudTextField @bind-Value="Tags" Label="Tags" Placeholder="Add Custom / Seeedit Pre-build"
+                  Variant="Variant.Outlined" FullWidth="true" />
+
+    <MudStack Row="true" Spacing="2" Class="mt-4">
+        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="SaveEntry">Save Entry</MudButton>
+        <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="UpdateEntry">Update Entry</MudButton>
+        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="DeleteEntry">Delete Entry</MudButton>
+    </MudStack>
+
+</MudContainer>
 
 @code {
+    private string Title = "";
+    private string Content = "";
+    private string PrimaryMood = "";
+    private IEnumerable<string> SecondaryMoods = new HashSet<string>();
+    private string PhaseOfLife = "";
+    private string Tags = "";
 
+    private List<string> PrimaryMoods = [];
+    private List<string> SecondaryMoodOptions = [];
+    private List<string> LifePhases = [];
+
+    protected override void OnInitialized()
+    {
+        PrimaryMoods = ["Happy", "Sad", "Calm", "Angry", "Excited"];
+        SecondaryMoodOptions = ["Work", "Health", "Travel", "Relationships", "Study"];
+        LifePhases = ["School life", "College life", "Work life", "Family life"];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await Task.Delay(200); 
+                await JS.InvokeVoidAsync("initializeQuill");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error initializing Quill: {e.Message}");
+            }
+        }
+    }
+
+    private async Task SaveEntry()
+    {
+        try
+        {
+            Content = await JS.InvokeAsync<string>("getQuillContent");
+            Console.WriteLine($"Saving entry: {Title} with content length: {Content.Length}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving entry: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateEntry()
+    {
+        try
+        {
+            Content = await JS.InvokeAsync<string>("getQuillContent");
+            Console.WriteLine($"Updating entry: {Title}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating entry: {ex.Message}");
+        }
+    }
+
+    private void DeleteEntry()
+    {
+        Console.WriteLine($"Deleting entry: {Title}");
+    }
 }
