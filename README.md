@@ -79,20 +79,7 @@ A modern, cross-platform journaling application built with .NET MAUI and Blazor,
    dotnet run -f net9.0-windows10.0.19041.0
    ```
    
-   For Android:
-   ```bash
-   dotnet run -f net9.0-android
-   ```
-   
-   For iOS:
-   ```bash
-   dotnet run -f net9.0-ios
-   ```
-   
-   For macOS:
-   ```bash
-   dotnet run -f net9.0-maccatalyst
-   ```
+
 
 ## Project Structure
 
