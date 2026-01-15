@@ -2,57 +2,117 @@
 @using MudBlazor
 @inject IJSRuntime JS
 
-
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+    <MudText Typo="Typo.h5" GutterBottom="true">
+        New Entry - @DateTime.UtcNow.ToString("MMMM dd, yyyy")
+    </MudText>
 
-    <MudText Typo="Typo.h5">New Entry - @DateTime.UtcNow.ToString("MMMM dd, yyyy")</MudText>
 
-    <MudTextField @bind-Value="Title" Label="Title" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="Title"
+                  Label="Title"
+                  Variant="Variant.Outlined"
+                  FullWidth />
 
-    <MudText Typo="Typo.body2" >Content</MudText>
-    <div id="quill-editor" style="height: 300px; background-color: white;"></div>
+
+    <MudText Typo="Typo.subtitle1" Class="mt-4" GutterBottom="true">
+        Content
+    </MudText>
+
+    <MudPaper Variant="Variant.Outlined">
+        <div id="quill-editor" style="height:300px;"></div>
+    </MudPaper>
+
     <input type="hidden" @bind="Content" />
 
-    <MudText Typo="Typo.body2" >How did you feel?</MudText>
+ 
+    <MudDivider Class="my-6" />
 
-    <MudGrid>
+  
+    <MudText Typo="Typo.h6" GutterBottom="true">
+        How did you feel?
+    </MudText>
+
+    <MudGrid Spacing="3">
         <MudItem xs="12" sm="6">
-            <MudSelect T="string" Label="Primary Mood (Required):" @bind-Value="PrimaryMood"
-                       Variant="Variant.Outlined" FullWidth="true" Margin="Margin.Dense">
+            <MudSelect T="string"
+                       Label="Primary Mood (Required)"
+                       @bind-Value="PrimaryMood"
+                       Variant="Variant.Outlined"
+                       FullWidth>
                 @foreach (var mood in PrimaryMoods)
                 {
                     <MudSelectItem Value="@mood">@mood</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
+
         <MudItem xs="12" sm="6">
-            <MudSelect T="string" Label="Secondary Moods (Optional):" @bind-SelectedValues="SecondaryMoods"
-                       MultiSelection="true" Variant="Variant.Outlined" FullWidth="true" Margin="Margin.Dense">
+            <MudSelect T="string"
+                       Label="Secondary Moods (Optional)"
+                       @bind-SelectedValues="SecondaryMoods"
+                       MultiSelection
+                       Variant="Variant.Outlined"
+                       FullWidth>
                 @foreach (var mood in SecondaryMoodOptions)
                 {
                     <MudSelectItem Value="@mood">@mood</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
+
+        <MudItem xs="12">
+            <MudSelect T="string"
+                       Label="Phase of Life"
+                       @bind-Value="PhaseOfLife"
+                       Variant="Variant.Outlined"
+                       FullWidth>
+                @foreach (var phase in LifePhases)
+                {
+                    <MudSelectItem Value="@phase">@phase</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
     </MudGrid>
 
-    <MudSelect T="string" Label="Phase of Life" @bind-Value="PhaseOfLife" Variant="Variant.Outlined" FullWidth="true">
-        @foreach (var phase in LifePhases)
-        {
-            <MudSelectItem Value="@phase">@phase</MudSelectItem>
-        }
-    </MudSelect>
+ 
+    <MudText Typo="Typo.subtitle1" Class="mt-6" GutterBottom="true">
+        Tags
+    </MudText>
 
-    <MudTextField @bind-Value="Tags" Label="Tags" Placeholder="Add Custom / Seeedit Pre-build"
-                  Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="Tags"
+                  Placeholder="Add Custom / Seed it Pre-build"
+                  Variant="Variant.Outlined"
+                  FullWidth />
 
-    <MudStack Row="true" Spacing="2" Class="mt-4">
-        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="SaveEntry">Save Entry</MudButton>
-        <MudButton Color="Color.Warning" Variant="Variant.Filled" OnClick="UpdateEntry">Update Entry</MudButton>
-        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="DeleteEntry">Delete Entry</MudButton>
+
+    <MudStack Row="true" Spacing="3" Justify="Justify.FlexStart" Class="mt-8">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Success"
+                   Size="Size.Large"
+                   OnClick="SaveEntry"
+                   Style="min-width: 140px;">
+            SAVE ENTRY
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Warning"
+                   Size="Size.Large"
+                   OnClick="UpdateEntry"
+                   Style="min-width: 140px;">
+            UPDATE ENTRY
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Error"
+                   Size="Size.Large"
+                   OnClick="DeleteEntry"
+                   Style="min-width: 140px;">
+            DELETE ENTRY
+        </MudButton>
     </MudStack>
 
 </MudContainer>
+
 
 @code {
     private string Title = "";

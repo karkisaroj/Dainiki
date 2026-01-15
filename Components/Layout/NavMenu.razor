@@ -7,16 +7,21 @@
 
         @if (Auth.IsLoggedIn)
         {
-            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" Class="mb-2">Dashboard</MudNavLink>
-            <MudNavLink Href="/journalentry" Icon="@Icons.Material.Filled.Book" Class="mb-2">Entries</MudNavLink>
+            <MudNavMenu Class="d-flex flex-column h-100">
+                <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" Class="mb-2">Dashboard</MudNavLink>
+                <MudNavLink Href="/journalentry" Icon="@Icons.Material.Filled.Book" Class="mb-2">Entries</MudNavLink>
+                <MudNavLink Href="/calendar" Icon="@Icons.Material.Filled.CalendarMonth" Class="mb-2">Calendar View</MudNavLink>
+                <MudNavLink Href="/search" Icon="@Icons.Material.Filled.Search" Class="mb-2">SearchAndFilters</MudNavLink>
+                <MudNavLink Href="/analytics" Icon="@Icons.Material.Filled.Analytics" Class="mb-2">Analytics</MudNavLink>
+                <MudNavLink Href="/export" Icon="@Icons.Material.Filled.Download" Class="mb-2">Export Journal</MudNavLink>
+                <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings" Class="mb-2">Settings</MudNavLink>
 
-            <MudNavGroup Title="Settings" Expanded="true" Icon="@Icons.Material.Filled.Settings" Class="mb-2">
-                <MudNavLink Href="/theme" Icon="@Icons.Material.Filled.People">Users</MudNavLink>
-                <MudNavLink Href="/security" Icon="@Icons.Material.Filled.Security">Security</MudNavLink>
-            </MudNavGroup>
+                <MudSpacer />
 
-            <MudNavLink Href="/about" Icon="@Icons.Material.Filled.Info" Class="mb-2">About</MudNavLink>
-            <MudNavLink Href="/logout" Icon="@Icons.Material.Filled.Logout" Class="mb-2">Logout</MudNavLink>
+                <MudDivider Class="my-2" />
+                <MudNavLink Href="/logout" Icon="@Icons.Material.Filled.Logout" Class="mb-2">Logout</MudNavLink>
+            </MudNavMenu>
+
         }
     </div>
 

@@ -11,9 +11,7 @@
 <MudLayout>
     @if (Auth.IsLoggedIn)
     {
-        <MudAppBar Elevation="1"
-                   Dense="true"
-                   Class="px-4">
+        <MudAppBar Elevation="1" Dense="true" Class="px-4 border-b border-solid" Style="border-color: var(--mud-palette-divider);">
             <MudIconButton Icon="@Icons.Material.Filled.Menu"
                            Color="Color.Inherit"
                            Edge="Edge.Start"
@@ -23,31 +21,29 @@
             <MudSpacer />
 
             <MudSwitch @bind-Value="_isDarkMode"
-                       Color="Color.Info"
+                       Color="Color.Primary"
                        T="bool"
-                       Label="Dark Mode"
+                       Label="@(_isDarkMode ? "Dark Mode" : "Light Mode")"
                        ThumbIcon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)" />
         </MudAppBar>
 
         <MudDrawer @bind-Open="_drawerOpen"
                    Anchor="Anchor.Start"
-                   Elevation="1"
-                   Class="pa-3">
+                   Elevation="0"
+                   Variant="@DrawerVariant.Responsive"
+                   Class="pa-3 border-r border-solid"
+                   Style="border-color: var(--mud-palette-divider);">
             <NavMenu />
         </MudDrawer>
     }
     else
     {
-        <MudAppBar Elevation="1"
-                   Dense="true"
-                   Class="px-4">
+        <MudAppBar Elevation="1" Dense="true" Class="px-4">
             <MudText Typo="Typo.h6" Class="font-weight-bold">Dainiki</MudText>
             <MudSpacer />
-
             <MudSwitch @bind-Value="_isDarkMode"
-                       Color="Color.Info"
+                       Color="Color.Primary"
                        T="bool"
-                       Label="Dark Mode"
                        ThumbIcon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)" />
         </MudAppBar>
     }
@@ -75,74 +71,57 @@
     {
         PaletteLight = new PaletteLight()
         {
-            Primary = "#6366f1",              // Modern Indigo
-            Secondary = "#ec4899",            // Pink accent
-            Tertiary = "#8b5cf6",             // Purple
-            Info = "#3b82f6",                 // Blue
-            Success = "#10b981",              // Green
-            Warning = "#f59e0b",              // Amber
-            Error = "#ef4444",                // Red
+            Primary = "#0f172a",              // Near-black (inverse of dark)
+            Secondary = "#475569",            // Slate gray
+            Tertiary = "#64748b",
 
-            Background = "#f8fafc",           // Very light gray
-            Surface = "#ffffff",              // Pure white
-            AppbarBackground = "#ffffff",     // White appbar
-            AppbarText = "#1e293b",           // Dark slate text
-            DrawerBackground = "#ffffff",     // White drawer
-            DrawerText = "#475569",           // Slate text
+            Background = "#f9fafb",           // Soft off-white (not pure white)
+            Surface = "#ffffff",              // Clean cards
 
-            TextPrimary = "#0f172a",          // Almost black
-            TextSecondary = "#64748b",        // Gray
-            TextDisabled = "#cbd5e1",         // Light gray
+            AppbarBackground = "#f9fafb",
+            AppbarText = "#0f172a",
 
-            ActionDefault = "#475569",        // Slate
-            ActionDisabled = "#cbd5e1",       // Light gray
-            ActionDisabledBackground = "#f1f5f9",
+            DrawerBackground = "#f9fafb",
+            DrawerText = "#334155",
 
-            Divider = "#e2e8f0",              // Light border
-            DividerLight = "#f1f5f9",
+            TextPrimary = "#0f172a",           // Same as primary
+            TextSecondary = "#64748b",
 
-            LinesDefault = "#e2e8f0",         // Light border
-            LinesInputs = "#cbd5e1",          // Input borders
+            Divider = "#e5e7eb",               // Subtle borders
+            LinesDefault = "#e5e7eb",
+            LinesInputs = "#d1d5db",
+
+            Success = "#16a34a",
+            Warning = "#ca8a04",
+            Error = "#dc2626",
+            Info = "#2563eb"
         },
+
 
         PaletteDark = new PaletteDark()
         {
-            Primary = "#818cf8",              // Lighter Indigo
-            Secondary = "#f472b6",            // Lighter Pink
-            Tertiary = "#a78bfa",             // Lighter Purple
-            Info = "#60a5fa",                 // Lighter Blue
-            Success = "#34d399",              // Lighter Green
-            Warning = "#fbbf24",              // Lighter Amber
-            Error = "#f87171",                // Lighter Red
+            Primary = "#ffffff",       
+            TextPrimary = "#ffffff",
+            TextSecondary = "#d1d5db",
 
-            Black = "#0f172a",                // Deep dark
-            Background = "#0f172a",           // Deep slate background
-            Surface = "#1e293b",              // Slate surface
-            AppbarBackground = "#1e293b",     // Slate appbar
-            AppbarText = "#f1f5f9",           // Light text
-            DrawerBackground = "#1e293b",     // Slate drawer
-            DrawerText = "#cbd5e1",           // Light gray text
+            Background = "#0b0c0d",
+            Surface = "#121314",
 
-            TextPrimary = "#f8fafc",          // Almost white
-            TextSecondary = "#cbd5e1",        // Light gray
-            TextDisabled = "#475569",         // Dark gray
+            AppbarText = "#ffffff",
+            DrawerText = "#d1d5db",
 
-            ActionDefault = "#94a3b8",        // Light slate
-            ActionDisabled = "#475569",       // Dark gray
-            ActionDisabledBackground = "#334155",
-
-            Divider = "#334155",              // Dark border
-            DividerLight = "#1e293b",
-
-            LinesDefault = "#334155",         // Dark border
-            LinesInputs = "#475569",          // Input borders
+            Divider = "#1f2937",
+            LinesDefault = "#1f2937",
+            LinesInputs = "#2a2f36"
         },
+
 
 
         LayoutProperties = new LayoutProperties()
         {
             DrawerWidthLeft = "260px",
             AppbarHeight = "64px",
+            DefaultBorderRadius = "8px"
         }
     };
 

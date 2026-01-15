@@ -1,6 +1,7 @@
 ﻿@page "/dashboard"
 @using Dainiki.Components.Services
 @inject AuthService Auth
+@inject NavigationManager NavManager
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudText Typo="Typo.h3" Class="mb-6">Welcome back, @Auth.CurrentUser!</MudText>
@@ -43,7 +44,7 @@
                     No entries yet. Start writing your first journal entry!
                 </MudText>
                 <div class="d-flex justify-center mt-4">
-                    <MudButton Variant="Variant.Filled"
+                    <MudButton Variant="Variant.Outlined"
                                Color="Color.Primary"
                                Href="/journalentry"
                                StartIcon="@Icons.Material.Filled.Add">
@@ -54,7 +55,7 @@
         </MudItem>
 
         <MudItem xs="12" md="4">
-            <MudPaper Elevation="2" Class="pa-4">
+            <MudPaper Elevation="2" >
                 <MudText Typo="Typo.h5" Class="mb-4">Quick Actions</MudText>
                 <MudStack Spacing="2">
                     <MudButton Variant="Variant.Outlined"
@@ -67,12 +68,13 @@
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Secondary"
                                FullWidth="true"
-                               Href="/journalentry"
+                               Href="/search"
                                StartIcon="@Icons.Material.Filled.Search">
                         View All Entries
                     </MudButton>
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Tertiary"
+                               Href="/settings"
                                FullWidth="true"
                                StartIcon="@Icons.Material.Filled.Settings">
                         Settings
@@ -101,5 +103,5 @@
         }
     }
 
-    [Inject] private NavigationManager NavManager { get; set; }
+    
 }
