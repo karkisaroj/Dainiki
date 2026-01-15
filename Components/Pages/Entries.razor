@@ -1,0 +1,152 @@
+﻿@page "/Entries"
+@using MudBlazor
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-6">
+    <div class="d-flex justify-space-between align-center mb-6">
+        <MudText Typo="Typo.h4" Color="Color.Primary">All Journal Entries</MudText>
+
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Href="/journalentry"
+                   Size="Size.Large">
+            New Entry
+        </MudButton>
+    </div>
+
+    <MudPaper Elevation="2"
+              Class="pa-6 rounded-lg"
+              Style="max-height: 75vh; overflow-y: auto; border-radius: 12px;">
+
+        @if (!AllEntries.Any())
+        {
+            <div class="text-center py-12">
+                <MudText Typo="Typo.body1" Color="Color.Secondary">
+                    No entries yet. Start writing your first journal entry!
+                </MudText>
+            </div>
+        }
+        else
+        {
+            <MudTimeline TimelinePosition="TimelinePosition.Alternate"
+                         TimelineAlign="TimelineAlign.Start">
+                @foreach (var entry in AllEntries.OrderByDescending(e => e.Date).ThenByDescending(e => e.Time))
+                {
+                    <MudTimelineItem Color="Color.Default">
+                        <ItemDot>
+                            <MudIcon Icon="@Icons.Material.Filled.Circle"
+                                     Color="Color.Primary"
+                                     Size="Size.Small" />
+                        </ItemDot>
+
+                        <ItemOpposite>
+                            <MudText Typo="Typo.caption" Color="Color.Default">
+                                @entry.Date.ToString("MMM dd, yyyy")
+                                <MudIcon Icon="@Icons.Material.Filled.AccessTime"
+                                         Size="Size.Small"
+                                         Class="ml-1 mr-1" />
+                                @entry.Time.ToString("hh:mm tt")
+                            </MudText>
+                        </ItemOpposite>
+
+                        <ChildContent>
+                            <MudPaper Elevation="1"
+                                      Class="pa-4 mb-3 rounded-lg"
+                                      Outlined="true">
+                                <div class="d-flex justify-space-between align-center mb-3">
+                                    <MudText Typo="Typo.subtitle1"
+                                             Color="Color.Default"
+                                             Class="font-weight-medium">
+                                        @entry.Title
+                                    </MudText>
+                                    <div>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                       Size="Size.Small"
+                                                       Color="Color.Primary"
+                                                       OnClick="() => EditEntry(entry)" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                       Size="Size.Small"
+                                                       Color="Color.Error"
+                                                       OnClick="() => DeleteEntry(entry)" />
+                                    </div>
+                                </div>
+
+                                <MudChip T="string"
+                                         Color="Color.Success"
+                                         Variant="Variant.Filled"
+                                         Size="Size.Small"
+                                         Class="mb-3">
+                                    @entry.Mood
+                                </MudChip>
+
+                                <MudText Typo="Typo.body2"
+                                         Color="Color.Default"
+                                         Class="line-clamp-3">
+                                    @entry.Preview
+                                </MudText>
+                            </MudPaper>
+                        </ChildContent>
+                    </MudTimelineItem>
+                }
+            </MudTimeline>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<JournalEntry> AllEntries { get; set; } = new()
+    {
+        new JournalEntry
+        {
+            Id = 1,
+            Date = new DateTime(2026, 1, 15),
+            Time = new TimeOnly(9, 30),
+            Title = "A Productive Day",
+            Mood = "Happy",
+            Preview = "Today was amazing! I accomplished all my goals and felt really positive about the progress I made on my project..."
+        },
+        new JournalEntry
+        {
+            Id = 2,
+            Date = new DateTime(2026, 1, 14),
+            Time = new TimeOnly(20, 15),
+            Title = "Quiet Reflection",
+            Mood = "Calm",
+            Preview = "Spent the day thinking about my future goals. Not particularly exciting, but felt like a necessary pause..."
+        },
+        new JournalEntry
+        {
+            Id = 3,
+            Date = new DateTime(2026, 1, 13),
+            Time = new TimeOnly(21, 0),
+            Title = "Challenging Moments",
+            Mood = "Stressed",
+            Preview = "Faced some tough challenges today. It wasn't easy, but pushing through built resilience..."
+        }
+        // Add more entries to test scrolling
+    };
+
+    private void EditEntry(JournalEntry entry)
+    {
+        Navigation.NavigateTo($"/journalentry/{entry.Id}");
+    }
+
+    private void DeleteEntry(JournalEntry entry)
+    {
+        // TODO: Add confirmation dialog
+        AllEntries.Remove(entry);
+        // TODO: Persist deletion
+        StateHasChanged();
+    }
+
+    private class JournalEntry
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+        public TimeOnly Time { get; set; }
+        public string Title { get; set; } = "";
+        public string Mood { get; set; } = "";
+        public string Preview { get; set; } = "";
+    }
+}

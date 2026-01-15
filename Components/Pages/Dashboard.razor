@@ -4,59 +4,134 @@
 @inject NavigationManager NavManager
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    <MudText Typo="Typo.h3" Class="mb-6">Welcome back, @Auth.CurrentUser!</MudText>
+    <MudText Typo="Typo.h3" Class="mb-6" Color="Color.Primary">
+        Welcome back, @Auth.CurrentUser!
+    </MudText>
 
-    <MudGrid>
+    <MudGrid Spacing="4">
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 150px;">
-                <MudText Typo="Typo.h6" Color="Color.Primary">Total Entries</MudText>
-                <MudText Typo="Typo.h3" Class="mt-4">0</MudText>
+            <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
+                <MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Total Entries</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Primary" Align="Align.Center" Class="mt-3">0</MudText>
             </MudPaper>
         </MudItem>
-
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 150px;">
-                <MudText Typo="Typo.h6" Color="Color.Secondary">This Week</MudText>
-                <MudText Typo="Typo.h3" Class="mt-4">0</MudText>
+            <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
+                <MudText Typo="Typo.h6" Color="Color.Secondary" Align="Align.Center">This Week</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Secondary" Align="Align.Center" Class="mt-3">0</MudText>
             </MudPaper>
         </MudItem>
-
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 150px;">
-                <MudText Typo="Typo.h6" Color="Color.Tertiary">This Month</MudText>
-                <MudText Typo="Typo.h3" Class="mt-4">0</MudText>
+            <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
+                <MudText Typo="Typo.h6" Color="Color.Tertiary" Align="Align.Center">This Month</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Tertiary" Align="Align.Center" Class="mt-3">0</MudText>
             </MudPaper>
         </MudItem>
-
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 150px;">
-                <MudText Typo="Typo.h6" Color="Color.Success">Current Streak</MudText>
-                <MudText Typo="Typo.h3" Class="mt-4">0 days</MudText>
+            <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
+                <MudText Typo="Typo.h6" Color="Color.Success" Align="Align.Center">Current Streak</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Success" Align="Align.Center" Class="mt-3">0 days</MudText>
             </MudPaper>
         </MudItem>
     </MudGrid>
 
-    <MudGrid Class="mt-8">
+    <MudGrid Class="mt-8" Spacing="4">
         <MudItem xs="12" md="8">
-            <MudPaper Elevation="2" Class="pa-4">
-                <MudText Typo="Typo.h5" Class="mb-4">Recent Entries</MudText>
-                <MudText Color="Color.Secondary" Class="text-center py-8">
-                    No entries yet. Start writing your first journal entry!
-                </MudText>
-                <div class="d-flex justify-center mt-4">
+            <MudPaper Elevation="2" Class="pa-6 rounded-lg">
+                <div class="d-flex justify-space-between align-center mb-6">
+                    <MudText Typo="Typo.h5" Color="Color.Primary">Recent Entries</MudText>
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
                                Href="/journalentry"
-                               StartIcon="@Icons.Material.Filled.Add">
-                        Create New Entry
+                               Size="Size.Medium">
+                        New Entry
                     </MudButton>
                 </div>
+
+                <MudPaper Elevation="0"
+                          Class="pa-0"
+                          Style="max-height: 520px; overflow-y: auto;">
+                    @if (!RecentEntries.Any())
+                    {
+                        <div class="text-center py-12">
+                            <MudText Typo="Typo.body1" Color="Color.Secondary">
+                                No entries yet. Start writing your first journal entry!
+                            </MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var entry in RecentEntries)
+                        {
+                            <MudPaper Outlined="true"
+                                      Elevation="0"
+                                      Class="pa-4 mb-3 rounded-lg">
+                                <div class="d-flex justify-space-between align-center mb-3">
+                                    <div>
+                                        <MudText Typo="Typo.subtitle1"
+                                                 Color="Color.Primary"
+                                                 Class="font-weight-medium">
+                                            @entry.Title
+                                        </MudText>
+                                        <MudText Typo="Typo.caption"
+                                                 Color="Color.Secondary"
+                                                 Class="mt-1">
+                                            @entry.Date.ToString("MMM dd, yyyy") • @entry.Time.ToString("hh:mm tt")
+                                        </MudText>
+                                    </div>
+
+                                    <div>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                       Size="Size.Small"
+                                                       Color="Color.Secondary"
+                                                       AriaLabel="Edit entry" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                       Size="Size.Small"
+                                                       Color="Color.Error"
+                                                       AriaLabel="Delete entry" />
+                                    </div>
+                                </div>
+
+                                <MudStack Row="true" Spacing="1" Class="mb-3">
+                                    @foreach (var mood in entry.Moods)
+                                    {
+                                        <MudChip T="string"
+                                                 Color="Color.Success"
+                                                 Variant="Variant.Filled"
+                                                 Size="Size.Small">
+                                            @mood
+                                        </MudChip>
+                                    }
+                                </MudStack>
+
+                                <MudText Typo="Typo.body2"
+                                         Color="Color.Secondary"
+                                         Class="line-clamp-3">
+                                    @entry.ContentPreview
+                                </MudText>
+
+                                <MudStack Row="true" Spacing="1" Class="mt-3">
+                                    @foreach (var tag in entry.Tags)
+                                    {
+                                        <MudChip T="string"
+                                                 Color="Color.Default"
+                                                 Variant="Variant.Text"
+                                                 Size="Size.Small">
+                                            #@tag
+                                        </MudChip>
+                                    }
+                                </MudStack>
+                            </MudPaper>
+                        }
+                    }
+                </MudPaper>
             </MudPaper>
         </MudItem>
 
         <MudItem xs="12" md="4">
-            <MudPaper Elevation="2" >
-                <MudText Typo="Typo.h5" Class="mb-4">Quick Actions</MudText>
+            <MudPaper Elevation="2" Class="pa-6">
+                <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Quick Actions</MudText>
                 <MudStack Spacing="2">
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Primary"
@@ -74,16 +149,16 @@
                     </MudButton>
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Tertiary"
-                               Href="/settings"
                                FullWidth="true"
+                               Href="/settings"
                                StartIcon="@Icons.Material.Filled.Settings">
                         Settings
                     </MudButton>
                 </MudStack>
             </MudPaper>
 
-            <MudPaper Elevation="2" Class="pa-4 mt-4">
-                <MudText Typo="Typo.h6" Class="mb-2">Tip of the Day</MudText>
+            <MudPaper Elevation="2" Class="pa-6 mt-4">
+                <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Tip of the Day</MudText>
                 <MudText Typo="Typo.body2" Color="Color.Secondary">
                     Writing regularly helps improve mental clarity and emotional well-being.
                     Try to journal at the same time each day to build a lasting habit.
@@ -94,14 +169,52 @@
 </MudContainer>
 
 @code {
+    private List<JournalEntry> RecentEntries { get; set; } = new()
+    {
+        new JournalEntry
+        {
+            Date = new DateTime(2026, 1, 15),
+            Time = new TimeOnly(9, 30),
+            Title = "A Productive Day",
+            ContentPreview = "Today was amazing! I accomplished all my goals and felt really positive about the progress I made on my project. The morning started with a great...",
+            Moods = new[] { "Happy", "Excited", "Motivated" },
+            Tags = new[] { "productivity", "work", "goals" }
+        },
+        new JournalEntry
+        {
+            Date = new DateTime(2026, 1, 14),
+            Time = new TimeOnly(20, 15),
+            Title = "Quiet Reflection",
+            ContentPreview = "Spent the day thinking about my future goals. Not particularly exciting, but felt like a necessary pause. Sometimes we need these quiet moments...",
+            Moods = new[] { "Calm", "Thoughtful" },
+            Tags = new[] { "reflection", "planning" }
+        },
+        new JournalEntry
+        {
+            Date = new DateTime(2026, 1, 13),
+            Time = new TimeOnly(21, 0),
+            Title = "Challenging Moments",
+            ContentPreview = "Faced some tough challenges today. It wasn't easy, but pushing through built resilience...",
+            Moods = new[] { "Stressed", "Determined" },
+            Tags = new[] { "challenges", "growth" }
+        }
+    };
+
     protected override void OnInitialized()
     {
         if (!Auth.IsLoggedIn)
         {
-      
             NavManager.NavigateTo("/login");
         }
     }
 
-    
+    private class JournalEntry
+    {
+        public DateTime Date { get; set; }
+        public TimeOnly Time { get; set; }
+        public string Title { get; set; } = "";
+        public string ContentPreview { get; set; } = "";
+        public string[] Moods { get; set; } = Array.Empty<string>();
+        public string[] Tags { get; set; } = Array.Empty<string>();
+    }
 }

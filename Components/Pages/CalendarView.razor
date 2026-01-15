@@ -2,103 +2,106 @@
 @using MudBlazor
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
-    <MudGrid Spacing="4">
+    <MudPaper Elevation="2"
+              Class="pa-6 rounded-lg"
+              Style="max-height: 80vh; overflow-y: auto; position: relative;">
 
+        <MudFab Color="Color.Default"
+                Icon="@Icons.Material.Filled.Add"
+                Label="New Entry"
+                Class="fab-top-right"
+                Href="/journalentry"
+                Style="position: absolute; top: 16px; right: 16px; z-index: 10;" />
 
-        <MudItem xs="12" md="5">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">
-                            @SelectedDate?.ToString("MMMM yyyy") ?? "Select date"
-                        </MudText>
-                    </CardHeaderContent>
-                    <CardHeaderActions>
-                        <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" OnClick="PrevMonth" />
-                        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" OnClick="NextMonth" />
-                    </CardHeaderActions>
-                </MudCardHeader>
+        <MudGrid Spacing="4">
+            <MudItem xs="12" md="5">
+                <MudCard Elevation="0" Class="mb-6">
+                    <MudCardHeader Class="pa-0 pb-3">
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6" Class="font-weight-medium">
+                                @SelectedDate?.ToString("MMMM yyyy") ?? "Select date"
+                            </MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft"
+                                           OnClick="PrevMonth"
+                                           Size="Size.Small" />
+                            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                                           OnClick="NextMonth"
+                                           Size="Size.Small" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
 
-                <MudDatePicker @bind-Date="SelectedDate"
-                               PickerVariant="PickerVariant.Static"
-                               DisableTextField="true"
-                               DisableToolbar="true"
-                               HighlightToday="true"
-                               Color="Color.Default"
-                               Class="pa-4 mx-auto mud-picker-static"
-                               Style="max-width: 320px;" />
+                    <MudDatePicker @bind-Date="SelectedDate"
+                                   PickerVariant="PickerVariant.Static"
+                                   DisableTextField="true"
+                                   DisableToolbar="true"
+                                   HighlightToday="true"
+                                   Color="Color.Default"
+                                   Class="mx-auto mud-picker-static"
+                                   Style="max-width: 340px;" />
+                </MudCard>
+            </MudItem>
 
-            </MudCard>
-        </MudItem>
+            <MudItem xs="12" md="7">
+                <MudText Typo="Typo.h5" Class="mb-4">
+                    Entries for @SelectedDate?.ToString("MMMM dd, yyyy")
+                </MudText>
 
-
-        <MudItem xs="12" md="7">
-            <MudCard Class="h-100">
-                <MudCardHeader>
-                    <CardHeaderAvatar>
-                        <MudAvatar Color="Color.Primary">
-                            @SelectedDate?.Day
-                        </MudAvatar>
-                    </CardHeaderAvatar>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h5">
-                            @SelectedDate?.ToString("MMMM dd, yyyy") ?? "No date"
-                        </MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Primary">
-                            @entriesToday.Count entries
-                        </MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-
-                <MudCardContent>
-                    @if (!entriesToday.Any())
+                @if (!entriesToday.Any())
+                {
+                    <MudText Typo="Typo.body1"
+                             Color="Color.Secondary"
+                             Align="Align.Center"
+                             Class="py-12">
+                        No entries yet for this day
+                    </MudText>
+                }
+                else
+                {
+                    @foreach (var entry in entriesToday)
                     {
-                        <MudText Color="Color.Primary" Align="Align.Center" Class="mt-8">
-                            No entries yet
-                        </MudText>
-                    }
-                    else
-                    {
-                        @foreach (var entry in entriesToday)
-                        {
-                            <MudPaper Outlined="true" Class="pa-3 mb-3">
-                                <div class="d-flex align-center">
-                                    <MudAvatar Color="Color.Success" Size="Size.Small" Class="mr-3">
-                                        <MudIcon Icon="@Icons.Material.Filled.Check" />
-                                    </MudAvatar>
-
-                                    <div class="flex-grow-1">
-                                        <MudText Typo="Typo.subtitle1">@entry.Title</MudText>
-
-                                        <div class="d-flex align-center gap-3 mt-1">
-                                            <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                                @entry.Time.ToString("HH:mm")
-                                            </MudText>
-                                            <MudChip T="string"
-                                                     Color="Color.Success"
-                                                     Variant="Variant.Text"
-                                                     Size="Size.Small">
-                                                @entry.Mood
-                                            </MudChip>
-                                        </div>
-                                    </div>
+                        <MudPaper Outlined="true"
+                                  Elevation="0"
+                                  Class="pa-4 mb-4 rounded-lg">
+                            <div class="d-flex justify-space-between align-center mb-3">
+                                <div>
+                                    <MudText Typo="Typo.subtitle1"
+                                             Class="font-weight-medium">
+                                        @entry.Title
+                                    </MudText>
+                                    <MudText Typo="Typo.caption"
+                                             Color="Color.Secondary"
+                                             Class="mt-1">
+                                        @entry.Time.ToString("hh:mm tt")
+                                    </MudText>
                                 </div>
-                            </MudPaper>
-                        }
+
+                                <div>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                                   Size="Size.Small"
+                                                   Color="Color.Secondary"
+                                                   AriaLabel="Edit entry" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                   Size="Size.Small"
+                                                   Color="Color.Error"
+                                                   AriaLabel="Delete entry" />
+                                </div>
+                            </div>
+
+                            <MudChip T="string"
+                                     Color="Color.Success"
+                                     Variant="Variant.Filled"
+                                     Size="Size.Small"
+                                     Class="mb-3">
+                                @entry.Mood
+                            </MudChip>
+                        </MudPaper>
                     }
-
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Add"
-                               Href="/journalentry"
-                               Class="mt-4">
-                        New Entry
-                    </MudButton>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-    </MudGrid>
+                }
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
 </MudContainer>
 
 @code {

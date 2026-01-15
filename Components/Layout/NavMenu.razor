@@ -9,19 +9,21 @@
         {
             <MudNavMenu Class="d-flex flex-column h-100">
                 <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard" Class="mb-2">Dashboard</MudNavLink>
-                <MudNavLink Href="/journalentry" Icon="@Icons.Material.Filled.Book" Class="mb-2">Entries</MudNavLink>
+                <MudNavGroup Title="Entries" Icon="@Icons.Material.Filled.Book" Expanded="true">
+                    <MudNavLink Href="/entries" Icon="@Icons.Material.Filled.List" Class="mb-1 pl-6">All Entries</MudNavLink>
+                    <MudNavLink Href="/addentry" Icon="@Icons.Material.Filled.Add" Class="mb-1 pl-6">New Entry</MudNavLink>
+                </MudNavGroup>
+
                 <MudNavLink Href="/calendar" Icon="@Icons.Material.Filled.CalendarMonth" Class="mb-2">Calendar View</MudNavLink>
-                <MudNavLink Href="/search" Icon="@Icons.Material.Filled.Search" Class="mb-2">SearchAndFilters</MudNavLink>
+                <MudNavLink Href="/search" Icon="@Icons.Material.Filled.Search" Class="mb-2">Search & Filters</MudNavLink>
                 <MudNavLink Href="/analytics" Icon="@Icons.Material.Filled.Analytics" Class="mb-2">Analytics</MudNavLink>
                 <MudNavLink Href="/export" Icon="@Icons.Material.Filled.Download" Class="mb-2">Export Journal</MudNavLink>
                 <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings" Class="mb-2">Settings</MudNavLink>
 
                 <MudSpacer />
-
                 <MudDivider Class="my-2" />
                 <MudNavLink Href="/logout" Icon="@Icons.Material.Filled.Logout" Class="mb-2">Logout</MudNavLink>
             </MudNavMenu>
-
         }
     </div>
 
