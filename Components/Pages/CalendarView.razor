@@ -1,5 +1,128 @@
 ﻿@page "/calendar"
-<h1>Calendar</h1>
-@code{
+@using MudBlazor
 
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+    <MudGrid Spacing="4">
+
+
+        <MudItem xs="12" md="5">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">
+                            @SelectedDate?.ToString("MMMM yyyy") ?? "Select date"
+                        </MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" OnClick="PrevMonth" />
+                        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" OnClick="NextMonth" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+
+                <MudDatePicker @bind-Date="SelectedDate"
+                               PickerVariant="PickerVariant.Static"
+                               DisableTextField="true"
+                               DisableToolbar="true"
+                               HighlightToday="true"
+                               Color="Color.Default"
+                               Class="pa-4 mx-auto mud-picker-static"
+                               Style="max-width: 320px;" />
+
+            </MudCard>
+        </MudItem>
+
+
+        <MudItem xs="12" md="7">
+            <MudCard Class="h-100">
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudAvatar Color="Color.Primary">
+                            @SelectedDate?.Day
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h5">
+                            @SelectedDate?.ToString("MMMM dd, yyyy") ?? "No date"
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Primary">
+                            @entriesToday.Count entries
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+
+                <MudCardContent>
+                    @if (!entriesToday.Any())
+                    {
+                        <MudText Color="Color.Primary" Align="Align.Center" Class="mt-8">
+                            No entries yet
+                        </MudText>
+                    }
+                    else
+                    {
+                        @foreach (var entry in entriesToday)
+                        {
+                            <MudPaper Outlined="true" Class="pa-3 mb-3">
+                                <div class="d-flex align-center">
+                                    <MudAvatar Color="Color.Success" Size="Size.Small" Class="mr-3">
+                                        <MudIcon Icon="@Icons.Material.Filled.Check" />
+                                    </MudAvatar>
+
+                                    <div class="flex-grow-1">
+                                        <MudText Typo="Typo.subtitle1">@entry.Title</MudText>
+
+                                        <div class="d-flex align-center gap-3 mt-1">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                @entry.Time.ToString("HH:mm")
+                                            </MudText>
+                                            <MudChip T="string"
+                                                     Color="Color.Success"
+                                                     Variant="Variant.Text"
+                                                     Size="Size.Small">
+                                                @entry.Mood
+                                            </MudChip>
+                                        </div>
+                                    </div>
+                                </div>
+                            </MudPaper>
+                        }
+                    }
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Href="/journalentry"
+                               Class="mt-4">
+                        New Entry
+                    </MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private DateTime? SelectedDate { get; set; } = DateTime.Today;
+
+    private List<Entry> AllEntries { get; set; } = new()
+    {
+        new Entry { Date = DateTime.Today, Time = new TimeOnly(9, 30), Title = "Morning reflection", Mood = "Calm" },
+        new Entry { Date = DateTime.Today, Time = new TimeOnly(14, 15), Title = "Work progress", Mood = "Focused" }
+    };
+
+    private List<Entry> entriesToday => AllEntries
+        .Where(e => SelectedDate.HasValue && e.Date.Date == SelectedDate.Value.Date)
+        .OrderBy(e => e.Time)
+        .ToList();
+
+    private void PrevMonth() => SelectedDate = SelectedDate?.AddMonths(-1);
+    private void NextMonth() => SelectedDate = SelectedDate?.AddMonths(1);
+
+    private class Entry
+    {
+        public DateTime Date { get; set; }
+        public TimeOnly Time { get; set; }
+        public string Title { get; set; } = "";
+        public string Mood { get; set; } = "";
+    }
 }
