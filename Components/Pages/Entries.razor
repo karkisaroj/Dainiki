@@ -1,4 +1,5 @@
-﻿@page "/Entries"
+﻿@page "/entries"
+@using Dainiki.Components.Models
 @using MudBlazor
 @inject NavigationManager Navigation
 
@@ -124,7 +125,7 @@
             Mood = "Stressed",
             Preview = "Faced some tough challenges today. It wasn't easy, but pushing through built resilience..."
         }
-        // Add more entries to test scrolling
+       
     };
 
     private void EditEntry(JournalEntry entry)
@@ -140,13 +141,5 @@
         StateHasChanged();
     }
 
-    private class JournalEntry
-    {
-        public int Id { get; set; }
-        public DateTime Date { get; set; }
-        public TimeOnly Time { get; set; }
-        public string Title { get; set; } = "";
-        public string Mood { get; set; } = "";
-        public string Preview { get; set; } = "";
-    }
+   
 }
