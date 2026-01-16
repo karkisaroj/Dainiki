@@ -1,4 +1,5 @@
 ﻿@page "/calendar"
+@using Dainiki.Components.Models
 @using MudBlazor
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
@@ -73,7 +74,7 @@
                                     <MudText Typo="Typo.caption"
                                              Color="Color.Secondary"
                                              Class="mt-1">
-                                        @entry.Time.ToString("hh:mm tt")
+                                        @entry.Time?.ToString("hh:mm tt")??:"Time not set"
                                     </MudText>
                                 </div>
 
@@ -94,7 +95,7 @@
                                      Variant="Variant.Filled"
                                      Size="Size.Small"
                                      Class="mb-3">
-                                @entry.Mood
+                                @entry.PrimaryMood
                             </MudChip>
                         </MudPaper>
                     }
@@ -107,25 +108,20 @@
 @code {
     private DateTime? SelectedDate { get; set; } = DateTime.Today;
 
-    private List<Entry> AllEntries { get; set; } = new()
+    private List<EntriesModel> AllEntries { get; set; } = new()
     {
-        new Entry { Date = DateTime.Today, Time = new TimeOnly(9, 30), Title = "Morning reflection", Mood = "Calm" },
-        new Entry { Date = DateTime.Today, Time = new TimeOnly(14, 15), Title = "Work progress", Mood = "Focused" }
+        new EntriesModel { Date = DateTime.Today, Time = new TimeOnly(9, 30), Title = "Morning reflection", PrimaryMood = "Calm" },
+        new EntriesModel { Date = DateTime.Today, Time = new TimeOnly(14, 15), Title = "Work progress", PrimaryMood = "Focused" }
     };
 
-    private List<Entry> entriesToday => AllEntries
-        .Where(e => SelectedDate.HasValue && e.Date.Date == SelectedDate.Value.Date)
+    private List<EntriesModel> entriesToday => AllEntries
+        .Where(e => SelectedDate.HasValue && e.Date == SelectedDate.Value.Date)
+        .OrderBy(e => e.Time)
         .OrderBy(e => e.Time)
         .ToList();
 
     private void PrevMonth() => SelectedDate = SelectedDate?.AddMonths(-1);
     private void NextMonth() => SelectedDate = SelectedDate?.AddMonths(1);
 
-    private class Entry
-    {
-        public DateTime Date { get; set; }
-        public TimeOnly Time { get; set; }
-        public string Title { get; set; } = "";
-        public string Mood { get; set; } = "";
-    }
+   
 }
