@@ -10,18 +10,29 @@ namespace Dainiki.Components.Database
 {
     public class JournalDatabase
     {
-        private readonly SQLiteConnection _db;
+        private readonly SQLiteAsyncConnection _db;
 
         public JournalDatabase(string dbPath)
         {
-            _db = new SQLiteConnection(dbPath);
-            _db.CreateTable<User>();
+            _db = new SQLiteAsyncConnection(dbPath);
+            _db.CreateTableAsync<User>().GetAwaiter().GetResult();
+           
         }
 
-        public int RegisterUser(User user) => _db.Insert(user);
+        public async Task<int> RegisterUser(User user)
+        {
+            
+           return await _db.InsertAsync(user);
+        }
 
-        public User? GetUser(string username) =>
-            _db.Table<User>().FirstOrDefault(u => u.Username == username);
+        public async Task<User?> ValidateLoginAsync(string username,string password)
+        {
+            return await _db.Table<User>().FirstOrDefaultAsync(u=>u.Username == username && u.Password == password);
+        }
+
+
+        public async Task< User?> GetUserByUsernameAsync(string username) =>
+           await _db.Table<User>().FirstOrDefaultAsync(u => u.Username == username );
     }
 
 }

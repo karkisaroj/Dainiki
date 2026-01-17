@@ -1,42 +1,42 @@
 ﻿using System;
 using Dainiki.Components.Models;
 using Dainiki.Components.Database;
+using System.Threading.Tasks;
 namespace Dainiki.Components.Services
 {
-    public class AuthService
+    public class AuthService(JournalDatabase db)
     {
-        private readonly JournalDatabase _db;
-        public event Action OnChange;
+        private readonly JournalDatabase _db = db;
+        public event Action? OnChange;
         public bool IsLoggedIn { get; private set; } = false;
         public string? CurrentUser { get; private set; }
-
-        public AuthService(JournalDatabase db)
+        public int? CurrentUserId { get; private set; }
+        public async Task<bool> Register(RegisterModel model)
         {
-            _db = db;
-        }
-
-        public bool Register(RegisterModel model)
-        {
-            if (_db.GetUser(model.Username) != null)
+            var existing=await _db.GetUserByUsernameAsync(model.Username);
+            if (existing != null)
+            {
                 return false;
+            }
             var user = new User
             {
-                FirstName = model.Username,
+                FirstName = model.FirstName,
                 Username = model.Username,
                 Password = model.Password
             };
-            _db.RegisterUser(user);
+            await _db.RegisterUser(user);
             return true;
         }
 
-        public bool Login(string username, string password)
+        public async Task<bool> Login(string username, string password)
         {
-            var user = _db.GetUser(username);
+            var user = await _db.ValidateLoginAsync(username,password);
             if (user == null || user.Password != password)
                 return false;
 
             IsLoggedIn = true;
             CurrentUser = username;
+            CurrentUserId = user.Id;
             NotifyStateChanged();  
 
             return true;
@@ -48,6 +48,7 @@ namespace Dainiki.Components.Services
         {
             IsLoggedIn = false;
             CurrentUser = null;
+            CurrentUserId = null;
             NotifyStateChanged();
         }
     }

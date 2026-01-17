@@ -34,9 +34,10 @@
 
         <MudTextField T="string"
                       Label="Password"
-                      @bind-Value="registerModel.Password"
+                      Value="registerModel.Password"
                       InputType="InputType.Password"
                       Required="true"
+                      ValueChanged="@((string newPw)=>OnPasswordChanged(newPw))"
                       RequiredError="Password is required"
                       Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))"
                       Variant="Variant.Outlined"
@@ -49,6 +50,7 @@
                       Label="Confirm Password"
                       @bind-Value="registerModel.ConfirmPassword"
                       InputType="InputType.Password"
+                      Immediate="true"
                       Required="true"
                       RequiredError="Please confirm your password"
                       Validation="@(new Func<string, string>(PasswordMatch))"
@@ -60,7 +62,6 @@
 
         <MudButton Variant="Variant.Filled"
                    Color="Color.Dark"
-                   Disabled="@(!success)"
                    OnClick="HandleRegister"
                    FullWidth="true"
                    Style="text-transform: uppercase; font-weight: 500; padding: 12px 24px;">
@@ -109,21 +110,30 @@
 </MudPaper>
 
 @code {
-    private MudForm? form;
+    private MudForm ?form;
     private bool success;
     private string[] errors = { };
     private bool agree;
 
     private RegisterModel registerModel = new();
 
+    private async Task OnPasswordChanged(String newPassword)
+    {
+        registerModel.Password = newPassword;
+        if (form != null)
+        {
+            await form.Validate();
+        }
+    }
+
     private async Task HandleRegister()
     {
-        await form.Validate();
+        await form!.Validate();
 
-        if (success)
+        if (form.IsValid || success)
         {
             var registered = Auth.Register(registerModel);
-            if (registered)
+            if (await registered)
             {
                 Snackbar.Add(" Registration successful! Please login.", Severity.Success);
 

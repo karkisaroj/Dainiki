@@ -38,7 +38,6 @@
 
         <MudButton Variant="Variant.Filled"
                    Color="Color.Dark"
-                   Disabled="@(!success)"
                    OnClick="HandleLogin"
                    FullWidth="true"
                    Style="text-transform: uppercase; font-weight: 500; padding: 12px 24px;">
@@ -92,7 +91,6 @@
     private string[] errors = { };
     private LoginModel loginModel = new();
 
-  
 
     private async Task HandleLogin()
     {
@@ -101,7 +99,7 @@
         if (success)
         {
             var loggedIn = Auth.Login(loginModel.Username, loginModel.Password);
-            if (loggedIn)
+            if (await loggedIn)
             {
                 Snackbar.Add(" Login successful", Severity.Success);
                 Nav.NavigateTo("/dashboard");

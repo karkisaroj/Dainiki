@@ -1,6 +1,9 @@
 ﻿@page "/addentry"
+@using Dainiki.Components.ViewModels
 @using MudBlazor
-@inject IJSRuntime JS
+@inject QuillEditorService QuillService
+@inject AuthService Auth
+    
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
     <MudText Typo="Typo.h5" GutterBottom="true">
@@ -149,8 +152,7 @@
         {
             try
             {
-                await Task.Delay(200); 
-                await JS.InvokeVoidAsync("initializeQuill");
+                await QuillService.InitializeAsync();
             }
             catch (Exception e)
             {
@@ -159,11 +161,15 @@
         }
     }
 
+    private JournalEntryFormModel entry=new();
+
     private async Task SaveEntry()
     {
         try
         {
-            Content = await JS.InvokeAsync<string>("getQuillContent");
+            entry.UserId = Auth.CurrentUserId ?? throw new Exception("Not logged in");
+            
+            Content = await QuillService.GetContentAsync();
             Console.WriteLine($"Saving entry: {Title} with content length: {Content.Length}");
         }
         catch (Exception ex)
@@ -176,7 +182,7 @@
     {
         try
         {
-            Content = await JS.InvokeAsync<string>("getQuillContent");
+            Content = await QuillService.GetContentAsync();
             Console.WriteLine($"Updating entry: {Title}");
         }
         catch (Exception ex)

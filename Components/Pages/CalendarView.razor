@@ -74,7 +74,7 @@
                                     <MudText Typo="Typo.caption"
                                              Color="Color.Secondary"
                                              Class="mt-1">
-                                        @entry.Time.ToString("hh:mm tt")??:"Time not set"
+                                        @entry.Time?.ToString("hh:mm tt")??:"Time not set"
                                     </MudText>
                                 </div>
 

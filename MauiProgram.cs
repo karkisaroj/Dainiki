@@ -21,6 +21,7 @@ namespace Dainiki
             builder.Services.AddMudServices();
             builder.Services.AddSingleton<JournalDatabase>(s => new JournalDatabase(Constants.DatabasePath));
             builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<QuillEditorService> ();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

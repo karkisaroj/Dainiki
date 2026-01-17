@@ -47,7 +47,7 @@
                                 <MudIcon Icon="@Icons.Material.Filled.AccessTime"
                                          Size="Size.Small"
                                          Class="ml-1 mr-1" />
-                                @entry.Time.ToString("hh:mm tt"):"Time not set"
+                                @entry.Time?.ToString("hh:mm tt"):"Time not set"
                             </MudText>
                         </ItemOpposite>
 
@@ -128,9 +128,7 @@
 
     private void DeleteEntry(EntriesModel entry)
     {
-        // TODO: Add confirmation dialog
         AllEntries.Remove(entry);
-        // TODO: Persist deletion
         StateHasChanged();
     }
 
