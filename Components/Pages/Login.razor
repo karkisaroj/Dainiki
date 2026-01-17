@@ -87,14 +87,16 @@
 </MudPaper>
 
 @code {
-    private MudForm form;
+    private MudForm?form;
     private bool success;
     private string[] errors = { };
     private LoginModel loginModel = new();
 
+  
+
     private async Task HandleLogin()
     {
-        await form.Validate();
+        await form!.Validate();
 
         if (success)
         {

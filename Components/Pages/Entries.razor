@@ -43,11 +43,11 @@
 
                         <ItemOpposite>
                             <MudText Typo="Typo.caption" Color="Color.Default">
-                                @entry.Date?.ToString("MMM dd, yyyy"):"Time not set"
+                                @entry.Date.ToString("MMM dd, yyyy"):"Time not set"
                                 <MudIcon Icon="@Icons.Material.Filled.AccessTime"
                                          Size="Size.Small"
                                          Class="ml-1 mr-1" />
-                                @entry.Time?.ToString("hh:mm tt"):"Time not set"
+                                @entry.Time.ToString("hh:mm tt"):"Time not set"
                             </MudText>
                         </ItemOpposite>
 
@@ -81,11 +81,7 @@
                                     @entry.PrimaryMood
                                 </MudChip>
 
-                                <MudText Typo="Typo.body2"
-                                         Color="Color.Default"
-                                         Class="line-clamp-3">
-                                    @entry.Preview
-                                </MudText>
+                              
                             </MudPaper>
                         </ChildContent>
                     </MudTimelineItem>
@@ -103,7 +99,7 @@
             Id = 1,
             Title = "A Productive Day",
             PrimaryMood = "Happy",
-            Preview = "Today was amazing! I accomplished all my goals and felt really positive about the progress I made on my project..."
+           
         },
         new EntriesModel
         {
@@ -112,7 +108,7 @@
             Time = new TimeOnly(20, 15),
             Title = "Quiet Reflection",
             PrimaryMood = "Calm",
-            Preview = "Spent the day thinking about my future goals. Not particularly exciting, but felt like a necessary pause..."
+           
         },
         new EntriesModel
         {
@@ -121,8 +117,7 @@
             Time = new TimeOnly(21, 0),
             Title = "Challenging Moments",
             PrimaryMood = "Stressed",
-            Preview = "Faced some tough challenges today. It wasn't easy, but pushing through built resilience..."
-        }
+             }
        
     };
 

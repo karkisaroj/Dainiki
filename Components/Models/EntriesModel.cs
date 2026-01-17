@@ -1,16 +1,18 @@
-﻿namespace Dainiki.Components.Models
+﻿public class EntriesModel
 {
-    public class EntriesModel
-    {
-        public int Id { get; set; }
-        public DateTime? Date { get; set; }
-        public TimeOnly? Time { get; set; }
-        public string PrimaryMood { get; set; } = string.Empty;
-        public List<string> SecondaryMoods { get; set; } = new List<string>();
-        public string PhaseOfLife { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
-        public string Preview { get; set; } = string.Empty;
-        public List<string> Tags { get; set; } = new List<string>();
-    }
+    public int Id { get; set; }
+    public int UserId { get; set; }
+
+    public DateTime Date { get; set; }
+    public TimeOnly Time { get; set; }
+
+    public string Title { get; set; } = "";
+    public string Content { get; set; } = "";
+
+    public string PrimaryMood { get; set; } = "";
+    public string SecondaryMoods { get; set; } = "";
+    public string PhaseOfLife { get; set; } = "";
+
+    public string Tags { get; set; } = "";            
+    
 }

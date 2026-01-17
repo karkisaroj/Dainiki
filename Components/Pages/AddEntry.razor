@@ -44,13 +44,15 @@
                     <MudSelectItem Value="@mood">@mood</MudSelectItem>
                 }
             </MudSelect>
+
         </MudItem>
 
         <MudItem xs="12" sm="6">
             <MudSelect T="string"
                        Label="Secondary Moods (Optional)"
-                       @bind-SelectedValues="SecondaryMoods"
-                       MultiSelection
+                       MultiSelection="true"
+                       SelectedValues="SecondaryMoods"
+                       SelectedValuesChanged="@(v => SecondaryMoods = v.ToList())"
                        Variant="Variant.Outlined"
                        FullWidth>
                 @foreach (var mood in SecondaryMoodOptions)
@@ -58,7 +60,9 @@
                     <MudSelectItem Value="@mood">@mood</MudSelectItem>
                 }
             </MudSelect>
+
         </MudItem>
+
 
         <MudItem xs="12">
             <MudSelect T="string"
@@ -118,7 +122,13 @@
     private string Title = "";
     private string Content = "";
     private string PrimaryMood = "";
-    private IEnumerable<string> SecondaryMoods = new HashSet<string>();
+    private List<string> SecondaryMoods = new();
+
+    private void OnSecondaryMoodsChanged(IEnumerable<string> values)
+    {
+        SecondaryMoods = values.ToList();
+    }
+
     private string PhaseOfLife = "";
     private string Tags = "";
 
