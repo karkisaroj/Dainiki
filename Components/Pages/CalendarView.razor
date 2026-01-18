@@ -7,47 +7,30 @@
               Class="pa-6 rounded-lg"
               Style="max-height: 80vh; overflow-y: auto; position: relative;">
 
-        <MudFab Color="Color.Default"
-                Icon="@Icons.Material.Filled.Add"
-                Label="New Entry"
-                Class="fab-top-right"
-                Href="/entries"
-                Style="position: absolute; top: 16px; right: 16px; z-index: 10;" />
-
+       
         <MudGrid Spacing="4">
-            <MudItem xs="12" md="5">
-                <MudCard Elevation="0" Class="mb-6">
-                    <MudCardHeader Class="pa-0 pb-3">
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6" Class="font-weight-medium">
-                                @SelectedDate?.ToString("MMMM yyyy") ?? "Select date"
-                            </MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft"
-                                           OnClick="PrevMonth"
-                                           Size="Size.Small" />
-                            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
-                                           OnClick="NextMonth"
-                                           Size="Size.Small" />
-                        </CardHeaderActions>
-                    </MudCardHeader>
-
-                    <MudDatePicker @bind-Date="SelectedDate"
-                                   PickerVariant="PickerVariant.Static"
-                                   DisableTextField="true"
-                                   DisableToolbar="true"
-                                   HighlightToday="true"
-                                   Color="Color.Default"
-                                   Class="mx-auto mud-picker-static"
-                                   Style="max-width: 340px;" />
-                </MudCard>
+            <MudItem xs="12" md="4">
+                <MudText Typo="Typo.h6" Class="font-weight-bold mb-4">Calendar</MudText>
+                <MudDatePicker @bind-Date="SelectedDate"
+                               PickerVariant="PickerVariant.Static"
+                               DisableTextField="true"
+                               HighlightToday="true"
+                               Color="Color.Default"
+                               Class="mx-auto mud-picker-static" />
             </MudItem>
 
-            <MudItem xs="12" md="7">
-                <MudText Typo="Typo.h5" Class="mb-4">
-                    Entries for @SelectedDate?.ToString("MMMM dd, yyyy")
-                </MudText>
+            <MudItem xs="12" md="8">
+                <div class="d-flex justify-space-between align-center mb-4">
+                    <MudText Typo="Typo.h5" Class="font-weight-medium">
+                        Entries for @SelectedDate?.ToString("MMMM dd, yyyy")
+                    </MudText>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Default"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Href="/entries">
+                        New Entry
+                    </MudButton>
+                </div>
 
                 @if (!entriesToday.Any())
                 {
@@ -74,7 +57,7 @@
                                     <MudText Typo="Typo.caption"
                                              Color="Color.Secondary"
                                              Class="mt-1">
-                                        @entry.Time?.ToString("hh:mm tt")??:"Time not set"
+                                        @(entry.Time?.ToString("hh:mm tt") ?? "Time not set")
                                     </MudText>
                                 </div>
 
@@ -116,7 +99,6 @@
 
     private List<EntriesModel> entriesToday => AllEntries
         .Where(e => SelectedDate.HasValue && e.Date == SelectedDate.Value.Date)
-        .OrderBy(e => e.Time)
         .OrderBy(e => e.Time)
         .ToList();
 

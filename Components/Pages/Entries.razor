@@ -43,11 +43,11 @@
 
                         <ItemOpposite>
                             <MudText Typo="Typo.caption" Color="Color.Default">
-                                @entry.Date.ToString("MMM dd, yyyy"):"Time not set"
+                                @entry.Date.ToString("MMM dd, yyyy")
                                 <MudIcon Icon="@Icons.Material.Filled.AccessTime"
                                          Size="Size.Small"
                                          Class="ml-1 mr-1" />
-                                @entry.Time?.ToString("hh:mm tt"):"Time not set"
+                                @(entry.Time?.ToString("hh:mm tt") ?? "Time not set")
                             </MudText>
                         </ItemOpposite>
 
@@ -80,8 +80,6 @@
                                          Class="mb-3">
                                     @entry.PrimaryMood
                                 </MudChip>
-
-                              
                             </MudPaper>
                         </ChildContent>
                     </MudTimelineItem>
@@ -89,6 +87,7 @@
             </MudTimeline>
         }
     </MudPaper>
+
 </MudContainer>
 
 @code {
@@ -96,9 +95,11 @@
     {
         new EntriesModel
         {
-            Id = 1,
-            Title = "A Productive Day",
-            PrimaryMood = "Happy",
+            Id = 1, 
+            Date = DateTime.Today, 
+            Time = new TimeOnly(10, 0), 
+            Title = "A Productive Day", 
+            PrimaryMood = "Happy"
            
         },
         new EntriesModel
