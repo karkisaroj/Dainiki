@@ -3,83 +3,48 @@
 @using MudBlazor
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
-    <MudPaper Elevation="2"
-              Class="pa-6 rounded-lg"
-              Style="max-height: 80vh; overflow-y: auto; position: relative;">
-
-       
+    <MudPaper Class="pa-6" Style="max-height:80vh; overflow:auto;">
         <MudGrid Spacing="4">
             <MudItem xs="12" md="4">
-                <MudText Typo="Typo.h6" Class="font-weight-bold mb-4">Calendar</MudText>
+                <MudText Typo="Typo.h6" Class="mb-4">Calendar</MudText>
+
                 <MudDatePicker @bind-Date="SelectedDate"
                                PickerVariant="PickerVariant.Static"
-                               DisableTextField="true"
-                               HighlightToday="true"
-                               Color="Color.Default"
-                               Class="mx-auto mud-picker-static" />
+                               DisableTextField
+                               HighlightToday />
             </MudItem>
 
-            <MudItem xs="12" md="8">
-                <div class="d-flex justify-space-between align-center mb-4">
-                    <MudText Typo="Typo.h5" Class="font-weight-medium">
-                        Entries for @SelectedDate?.ToString("MMMM dd, yyyy")
-                    </MudText>
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Default"
-                               StartIcon="@Icons.Material.Filled.Add"
-                               Href="/entries">
-                        New Entry
-                    </MudButton>
-                </div>
+            <MudItem xs="12" md="8" Class="pl-md-6 mt-6 mt-md-0">
+                <MudText Typo="Typo.h5" Class="mb-4">
+                    Entries for @SelectedDate?.ToString("MMMM dd, yyyy")
+                </MudText>
 
-                @if (!entriesToday.Any())
+                @if (!EntriesToday.Any())
                 {
-                    <MudText Typo="Typo.body1"
-                             Color="Color.Secondary"
-                             Align="Align.Center"
-                             Class="py-12">
-                        No entries yet for this day
+                    <MudText Align="Align.Center" Class="py-12">
+                        No entries for this day
                     </MudText>
                 }
                 else
                 {
-                    @foreach (var entry in entriesToday)
+                    @foreach (var entry in EntriesToday)
                     {
-                        <MudPaper Outlined="true"
-                                  Elevation="0"
-                                  Class="pa-4 mb-4 rounded-lg">
-                            <div class="d-flex justify-space-between align-center mb-3">
-                                <div>
-                                    <MudText Typo="Typo.subtitle1"
-                                             Class="font-weight-medium">
-                                        @entry.Title
-                                    </MudText>
-                                    <MudText Typo="Typo.caption"
-                                             Color="Color.Secondary"
-                                             Class="mt-1">
-                                        @(entry.Time?.ToString("hh:mm tt") ?? "Time not set")
-                                    </MudText>
-                                </div>
+                        <MudPaper Outlined Class="pa-4 mb-4">
+                            <MudText Typo="Typo.subtitle1">@entry.Title</MudText>
 
-                                <div>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                                   Size="Size.Small"
-                                                   Color="Color.Secondary"
-                                                   AriaLabel="Edit entry" />
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                                   Size="Size.Small"
-                                                   Color="Color.Error"
-                                                   AriaLabel="Delete entry" />
-                                </div>
-                            </div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @(entry.Time.HasValue
+                                    ? DateTime.Today.Add(entry.Time.Value).ToString("hh:mm tt")
+                                    : "Time not set")
+                            </MudText>
 
                             <MudChip T="string"
                                      Color="Color.Success"
-                                     Variant="Variant.Filled"
                                      Size="Size.Small"
-                                     Class="mb-3">
+                                     Class="mt-2">
                                 @entry.PrimaryMood
                             </MudChip>
+
                         </MudPaper>
                     }
                 }
@@ -89,21 +54,29 @@
 </MudContainer>
 
 @code {
-    private DateTime? SelectedDate { get; set; } = DateTime.Today;
+    private DateTime? SelectedDate = DateTime.Today;
 
-    private List<EntriesModel> AllEntries { get; set; } = new()
+    private List<EntriesModel> AllEntries = new()
     {
-        new EntriesModel { Date = DateTime.Today, Time = new TimeSpan(9, 30, 0), Title = "Morning reflection", PrimaryMood = "Calm" },
-        new EntriesModel { Date = DateTime.Today, Time = new TimeSpan(14, 15, 0), Title = "Work progress", PrimaryMood = "Focused" }
+        new EntriesModel
+        {
+            Date = DateTime.Today,
+            Time = new TimeSpan(9,30,0),
+            Title = "Morning reflection",
+            PrimaryMood = "Calm"
+        },
+        new EntriesModel
+        {
+            Date = DateTime.Today,
+            Time = new TimeSpan(14,15,0),
+            Title = "Work progress",
+            PrimaryMood = "Focused"
+        }
     };
 
-    private List<EntriesModel> entriesToday => AllEntries
-        .Where(e => SelectedDate.HasValue && e.Date == SelectedDate.Value.Date)
-        .OrderBy(e => e.Time)
-        .ToList();
-
-    private void PrevMonth() => SelectedDate = SelectedDate?.AddMonths(-1);
-    private void NextMonth() => SelectedDate = SelectedDate?.AddMonths(1);
-
-   
+    private List<EntriesModel> EntriesToday =>
+        AllEntries
+            .Where(e => SelectedDate.HasValue && e.Date.Date == SelectedDate.Value.Date)
+            .OrderBy(e => e.Time)
+            .ToList();
 }

@@ -2,9 +2,10 @@
 @using MudBlazor
 @inject IJSRuntime JS
 @inject AuthService Auth
+@implements IAsyncDisposable
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
-    <MudText Typo="Typo.h5" GutterBottom="true">
+    <MudText Typo="Typo.h5" GutterBottom>
         New Entry - @DateTime.UtcNow.ToString("MMMM dd, yyyy")
     </MudText>
 
@@ -13,28 +14,36 @@
                   Variant="Variant.Outlined"
                   FullWidth />
 
-    <MudText Typo="Typo.subtitle1" Class="mt-4" GutterBottom="true">
+    <MudText Typo="Typo.subtitle1" Class="mt-4" GutterBottom>
         Content
     </MudText>
+
+    <MudButton Variant="Variant.Outlined"
+               Color="Color.Primary"
+               Class="mb-3"
+               OnClick="TogglePreview">
+        @(ShowPreview ? "Hide Preview" : "Show Preview")
+    </MudButton>
 
     <MudPaper Variant="Variant.Outlined">
         <div id="quill-editor" style="height:300px;"></div>
     </MudPaper>
 
-    <MudPaper>
-        @((MarkupString)entry.Content)
-    </MudPaper>
+    @if (ShowPreview)
+    {
+        <MudPaper Class="mt-4 pa-4">
+            <MudText Typo="Typo.subtitle1" GutterBottom>Preview</MudText>
+            <MudDivider Class="mb-3" />
+            <div>@((MarkupString)PreviewContent)</div>
+        </MudPaper>
+    }
 
     <MudDivider Class="my-6" />
-
-    <MudText Typo="Typo.h6" GutterBottom="true">
-        How did you feel?
-    </MudText>
 
     <MudGrid Spacing="3">
         <MudItem xs="12" sm="6">
             <MudSelect T="string"
-                       Label="Primary Mood (Required)"
+                       Label="Primary Mood"
                        @bind-Value="PrimaryMood"
                        Variant="Variant.Outlined"
                        FullWidth>
@@ -47,10 +56,10 @@
 
         <MudItem xs="12" sm="6">
             <MudSelect T="string"
-                       Label="Secondary Moods (Optional)"
-                       MultiSelection="true"
+                       Label="Secondary Moods"
+                       MultiSelection
                        SelectedValues="SecondaryMoods"
-                       SelectedValuesChanged="@(v => SecondaryMoods = v.ToList())"
+                       SelectedValuesChanged="v => SecondaryMoods = v.ToList()"
                        Variant="Variant.Outlined"
                        FullWidth>
                 @foreach (var mood in SecondaryMoodOptions)
@@ -74,91 +83,74 @@
         </MudItem>
     </MudGrid>
 
-    <MudText Typo="Typo.subtitle1" Class="mt-6" GutterBottom="true">
-        Tags
-    </MudText>
-
     <MudTextField @bind-Value="Tags"
-                  Placeholder="Add Custom / Seed it Pre-build"
+                  Label="Tags"
                   Variant="Variant.Outlined"
-                  FullWidth />
+                  FullWidth
+                  Class="mt-6" />
 
-    <MudStack Row="true" Spacing="3" Justify="Justify.FlexStart" Class="mt-8">
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Success"
-                   Size="Size.Large"
-                   OnClick="SaveEntry"
-                   Style="min-width: 140px;">
-            SAVE ENTRY
-        </MudButton>
-    </MudStack>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Success"
+               Size="Size.Large"
+               Class="mt-6"
+               OnClick="SaveEntry">
+        Save Entry
+    </MudButton>
 </MudContainer>
 
 @code {
+    private bool ShowPreview;
+    private string PreviewContent = "";
     private string Title = "";
     private string PrimaryMood = "";
     private List<string> SecondaryMoods = new();
     private string PhaseOfLife = "";
     private string Tags = "";
 
-    private List<string> PrimaryMoods = [];
-    private List<string> SecondaryMoodOptions = [];
-    private List<string> LifePhases = [];
-
-    private EntriesModel entry = new();
-
-    private IJSObjectReference? _quillModule;
-    private bool _quillReady;
-
-    protected override void OnInitialized()
-    {
-        PrimaryMoods = ["Happy", "Sad", "Calm", "Angry", "Excited"];
-        SecondaryMoodOptions = ["Work", "Health", "Travel", "Relationships", "Study"];
-        LifePhases = ["School life", "College life", "Work life", "Family life"];
-    }
+    private List<string> PrimaryMoods = ["Happy", "Sad", "Calm", "Angry", "Excited"];
+    private List<string> SecondaryMoodOptions = ["Work", "Health", "Travel", "Relationships", "Study"];
+    private List<string> LifePhases = ["School life", "College life", "Work life", "Family life"];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
             await JS.InvokeVoidAsync("initializeQuill");
-        }
+    }
+
+    private async Task TogglePreview()
+    {
+        if (!ShowPreview)
+            PreviewContent = await JS.InvokeAsync<string>("getQuillContent");
+
+        ShowPreview = !ShowPreview;
     }
 
     private async Task SaveEntry()
     {
         var content = await JS.InvokeAsync<string>("getQuillContent");
-        entry = new EntriesModel
-            {
-                UserId = Auth.CurrentUserId ?? 0,
-                Title = Title,
-                Content = content,
-                PrimaryMood = PrimaryMood,
-                SecondaryMoods = string.Join(",", SecondaryMoods),
-                PhaseOfLife = PhaseOfLife,
-                Tags = Tags,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-            };
-         await Auth.SaveEntryAsync(entry);
 
-            
-        
+        var entry = new EntriesModel
+        {
+            UserId = Auth.CurrentUserId ?? 0,
+            Title = Title,
+            Content = content,
+            PrimaryMood = PrimaryMood,
+            SecondaryMoods = string.Join(",", SecondaryMoods),
+            PhaseOfLife = PhaseOfLife,
+            Tags = Tags,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+
+        await Auth.SaveEntryAsync(entry);
     }
 
     public async ValueTask DisposeAsync()
     {
-          try
+        try
         {
-            if (_quillModule is not null)
-            {
-                await _quillModule.InvokeVoidAsync("disposeQuill");
-                await _quillModule.DisposeAsync();
-            }
+            await JS.InvokeVoidAsync("destroyQuill");
         }
-        catch (JSException jsEx)
-        {
-            Console.WriteLine($"Dispose JSException: {jsEx.Message}");
-        }
+        catch { }
     }
 }
