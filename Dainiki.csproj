@@ -72,4 +72,8 @@
       <Folder Include="Components\Database\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="wwwroot\js\Quill.js" />
+    </ItemGroup>
+
 </Project>
