@@ -36,7 +36,7 @@ window.getQuillContent = function () {
         return '';
     }
 
-    return quill.getHTML();
+    return quill.root.innerHTML;
 };
 
 window.setQuillContent = function (content) {
