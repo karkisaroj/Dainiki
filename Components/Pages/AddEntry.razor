@@ -128,8 +128,22 @@
     private async Task SaveEntry()
     {
         var content = await JS.InvokeAsync<string>("getQuillContent");
-        Console.WriteLine($"Saving content: {content}");
-        entry.Content = content;
+        entry = new EntriesModel
+            {
+                UserId = Auth.CurrentUserId ?? 0,
+                Title = Title,
+                Content = content,
+                PrimaryMood = PrimaryMood,
+                SecondaryMoods = string.Join(",", SecondaryMoods),
+                PhaseOfLife = PhaseOfLife,
+                Tags = Tags,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+            };
+         await Auth.SaveEntryAsync(entry);
+
+            
+        
     }
 
     public async ValueTask DisposeAsync()

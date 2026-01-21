@@ -93,8 +93,8 @@
 
     private List<EntriesModel> AllEntries { get; set; } = new()
     {
-        new EntriesModel { Date = DateTime.Today, Time = new TimeOnly(9, 30), Title = "Morning reflection", PrimaryMood = "Calm" },
-        new EntriesModel { Date = DateTime.Today, Time = new TimeOnly(14, 15), Title = "Work progress", PrimaryMood = "Focused" }
+        new EntriesModel { Date = DateTime.Today, Time = new TimeSpan(9, 30, 0), Title = "Morning reflection", PrimaryMood = "Calm" },
+        new EntriesModel { Date = DateTime.Today, Time = new TimeSpan(14, 15, 0), Title = "Work progress", PrimaryMood = "Focused" }
     };
 
     private List<EntriesModel> entriesToday => AllEntries

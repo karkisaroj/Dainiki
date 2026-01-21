@@ -1,12 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SQLite;
+using System.ComponentModel.DataAnnotations;
 
 public class EntriesModel
 {
+    [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     public int UserId { get; set; }
 
     public DateTime Date { get; set; } = DateTime.Now;
-    public TimeOnly? Time { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
+
+    public TimeSpan? Time { get; set; } = DateTime.Now.TimeOfDay;
 
     [Required, StringLength(50)]
     public string Title { get; set; } = "";
@@ -26,5 +29,4 @@ public class EntriesModel
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
-
 }

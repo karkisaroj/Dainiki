@@ -1,129 +1,95 @@
 ﻿@inherits LayoutComponentBase
+@using Dainiki.Components.Models
+@using Dainiki.Components.Theme
 @using MudBlazor
 @inject AuthService Auth
 @implements IDisposable
 
-<MudThemeProvider @bind-IsDarkMode="_isDarkMode" Theme="_theme" />
+<MudThemeProvider Theme="_theme" @bind-IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
+
     @if (Auth.IsLoggedIn)
     {
-        <MudAppBar Elevation="1" Dense="true" Class="px-4 border-b border-solid" Style="border-color: var(--mud-palette-divider);">
+        <MudAppBar Elevation="1" Dense Class="px-4"
+                   Style="border-bottom:1px solid var(--mud-palette-divider);">
+
             <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                           Color="Color.Inherit"
                            Edge="Edge.Start"
-                           OnClick="@((e) => DrawerToggle())"
-                           Class="mr-2" />
-            <MudText Typo="Typo.h6" Class="font-weight-bold">Dainiki</MudText>
+                           Color="Color.Inherit"
+                           OnClick="ToggleDrawer" />
+
+            <MudText Typo="Typo.h6" Class="ml-2 font-weight-bold">
+                Dainiki
+            </MudText>
+
             <MudSpacer />
 
-            <MudSwitch @bind-Value="_isDarkMode"
+            <MudSwitch T="bool"
+                       Value="_isDarkMode"
+                       ValueChanged="OnDarkModeChanged"
                        Color="Color.Primary"
-                       T="bool"
-                       Label="@(_isDarkMode ? "Dark Mode" : "Light Mode")"
                        ThumbIcon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)" />
-        </MudAppBar>
+    </MudAppBar>
 
         <MudDrawer @bind-Open="_drawerOpen"
-                   Anchor="Anchor.Start"
+                   Variant="DrawerVariant.Responsive"
                    Elevation="0"
-                   Variant="@DrawerVariant.Responsive"
-                   Class="pa-3 border-r border-solid"
-                   Style="border-color: var(--mud-palette-divider);">
+                   Class="pa-3"
+                   Style="border-right:1px solid var(--mud-palette-divider);">
             <NavMenu />
         </MudDrawer>
-    }
+        }
     else
     {
-        <MudAppBar Elevation="1" Dense="true" Class="px-4">
-            <MudText Typo="Typo.h6" Class="font-weight-bold">Dainiki</MudText>
+        <MudAppBar Elevation="1" Dense Class="px-4">
+            <MudText Typo="Typo.h6" Class="font-weight-bold">
+                Dainiki
+            </MudText>
+
             <MudSpacer />
-            <MudSwitch @bind-Value="_isDarkMode"
+
+            <MudSwitch T="bool"
+                       @bind-Value="_isDarkMode"
                        Color="Color.Primary"
-                       T="bool"
-                       ThumbIcon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)" />
-        </MudAppBar>
-    }
+                       ThumbIcon="@(_isDarkMode? Icons.Material.Filled.DarkMode: Icons.Material.Filled.LightMode)" />
+    </MudAppBar>
+        }
 
     <MudMainContent Class="pt-16 pa-4">
         @Body
     </MudMainContent>
+
 </MudLayout>
 
 @code {
+    private readonly MudTheme _theme = new AppTheme();
     private bool _drawerOpen = true;
-    private bool _isDarkMode = false;
+    private bool _isDarkMode;
 
     protected override void OnInitialized()
     {
         Auth.OnChange += StateHasChanged;
+        _isDarkMode = Auth.IsDarkMode;
+    }
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
     }
 
     public void Dispose()
     {
         Auth.OnChange -= StateHasChanged;
+        Auth.IsDarkMode = _isDarkMode;
+    }
+    private async Task OnDarkModeChanged(bool value)
+    {
+        _isDarkMode = value;
+        await Auth.UpdateThemePreferenceAsync(value);
     }
 
-    private MudTheme _theme = new MudTheme()
-    {
-        PaletteLight = new PaletteLight()
-        {
-            Primary = "#0f172a",            
-            Secondary = "#475569",           
-            Tertiary = "#64748b",
-
-            Background = "#f9fafb",          
-            Surface = "#ffffff",            
-
-            AppbarBackground = "#f9fafb",
-            AppbarText = "#0f172a",
-
-            DrawerBackground = "#f9fafb",
-            DrawerText = "#334155",
-
-            TextPrimary = "#0f172a",           
-            TextSecondary = "#64748b",
-
-            Divider = "#e5e7eb",              
-            LinesDefault = "#e5e7eb",
-            LinesInputs = "#d1d5db",
-
-            Success = "#16a34a",
-            Warning = "#ca8a04",
-            Error = "#dc2626",
-            Info = "#2563eb"
-        },
-
-
-        PaletteDark = new PaletteDark()
-        {
-            Primary = "#ffffff",       
-            TextPrimary = "#ffffff",
-            TextSecondary = "#d1d5db",
-
-            Background = "#0b0c0d",
-            Surface = "#121314",
-
-            AppbarText = "#ffffff",
-            DrawerText = "#d1d5db",
-
-            Divider = "#1f2937",
-            LinesDefault = "#1f2937",
-            LinesInputs = "#2a2f36"
-        },
-
-
-
-        LayoutProperties = new LayoutProperties()
-        {
-            DrawerWidthLeft = "260px",
-            AppbarHeight = "64px",
-            DefaultBorderRadius = "8px"
-        }
-    };
-
-    void DrawerToggle() => _drawerOpen = !_drawerOpen;
 }

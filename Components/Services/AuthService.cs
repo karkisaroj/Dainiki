@@ -11,6 +11,7 @@ namespace Dainiki.Components.Services
         public bool IsLoggedIn { get; private set; } = false;
         public string? CurrentUser { get; private set; }
         public int? CurrentUserId { get; private set; }
+        public bool IsDarkMode { get; set; }
         public async Task<bool> Register(RegisterModel model)
         {
             var existing=await _db.GetUserByUsernameAsync(model.Username);
@@ -37,6 +38,7 @@ namespace Dainiki.Components.Services
             IsLoggedIn = true;
             CurrentUser = username;
             CurrentUserId = user.Id;
+            IsDarkMode = user.IsDarkMode;
             NotifyStateChanged();  
 
             return true;
@@ -44,6 +46,24 @@ namespace Dainiki.Components.Services
 
         private void NotifyStateChanged() => OnChange?.Invoke();
 
+        public async Task UpdateThemePreferenceAsync(bool isDarkMode)
+        {
+            if (CurrentUserId.HasValue)
+            {
+                await _db.UpdateUserThemePreferenceAsync(CurrentUserId.Value, isDarkMode);
+                IsDarkMode = isDarkMode;
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task<int> SaveEntryAsync(EntriesModel entry)
+        {
+            entry.UserId = CurrentUserId ?? 0;
+            entry.CreatedAt = DateTime.Now;
+            entry.UpdatedAt = DateTime.Now;
+
+            return await _db.SaveEntryAsync(entry);
+        }
         public void Logout()
         {
             IsLoggedIn = false;
