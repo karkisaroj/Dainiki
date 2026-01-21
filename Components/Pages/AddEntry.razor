@@ -1,5 +1,4 @@
 ﻿@page "/addentry"
-@using Dainiki.Components.ViewModels
 @using MudBlazor
 @inject IJSRuntime JS
 @inject AuthService Auth
@@ -102,7 +101,7 @@
     private List<string> SecondaryMoodOptions = [];
     private List<string> LifePhases = [];
 
-    private JournalEntryFormModel entry = new();
+    private EntriesModel entry = new();
 
     private IJSObjectReference? _quillModule;
     private bool _quillReady;
@@ -126,6 +125,7 @@
     {
         var content = await JS.InvokeAsync<string>("getQuillContent");
         Console.WriteLine($"Saving content: {content}");
+        entry.Content = content;
     }
 
     public async ValueTask DisposeAsync()
