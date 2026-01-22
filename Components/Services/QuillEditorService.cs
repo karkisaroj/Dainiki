@@ -24,5 +24,13 @@ namespace Dainiki.Components.Services
         {
             return await _js.InvokeAsync<string>("getQuillContent");
         }
+        public async Task SetContentAsync(string content)
+        {
+            await _js.InvokeVoidAsync("setQuillContent", content);
+        }
+        public async Task ClearContentAsync()
+        {
+            await _js.InvokeVoidAsync("clearQuillContent");
+        }
     }
 }

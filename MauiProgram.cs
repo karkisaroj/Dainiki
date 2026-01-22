@@ -19,9 +19,11 @@ namespace Dainiki
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
-            builder.Services.AddSingleton<JournalDatabase>(s => new JournalDatabase(Constants.DatabasePath));
+            builder.Services.AddSingleton<JournalDatabase>(s => new JournalDatabase(DatabaseConfig.DatabasePath));
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<QuillEditorService> ();
+            builder.Services.AddScoped<EntityService>();
+
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

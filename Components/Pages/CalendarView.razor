@@ -1,6 +1,10 @@
 ﻿@page "/calendar"
+@using Dainiki.Components.Dialog
 @using Dainiki.Components.Models
 @using MudBlazor
+@inject AuthService Auth
+@inject EntityService Entities
+@inject IDialogService DialogService
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudPaper Class="pa-6" Style="max-height:80vh; overflow:auto;">
@@ -29,24 +33,18 @@
                 {
                     @foreach (var entry in EntriesToday)
                     {
-                        <MudPaper Outlined Class="pa-4 mb-4">
+                        <MudPaper Outlined Class="pa-4 mb-4" Style="cursor:pointer" @onclick="() => ShowEntryPopup(entry)">
                             <MudText Typo="Typo.subtitle1">@entry.Title</MudText>
 
                             <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                @(entry.Time.HasValue
-                                    ? DateTime.Today.Add(entry.Time.Value).ToString("hh:mm tt")
-                                    : "Time not set")
-                            </MudText>
+                                @(entry.Time.HasValue? DateTime.Today.Add(entry.Time.Value).ToString("hh:mm tt"): "Time not set")
+                    </MudText>
 
-                            <MudChip T="string"
-                                     Color="Color.Success"
-                                     Size="Size.Small"
-                                     Class="mt-2">
+                            <MudChip T="string" Color="Color.Success" Size="Size.Small" Class="mt-2">
                                 @entry.PrimaryMood
                             </MudChip>
-
                         </MudPaper>
-                    }
+                        }
                 }
             </MudItem>
         </MudGrid>
@@ -55,28 +53,26 @@
 
 @code {
     private DateTime? SelectedDate = DateTime.Today;
-
-    private List<EntriesModel> AllEntries = new()
-    {
-        new EntriesModel
-        {
-            Date = DateTime.Today,
-            Time = new TimeSpan(9,30,0),
-            Title = "Morning reflection",
-            PrimaryMood = "Calm"
-        },
-        new EntriesModel
-        {
-            Date = DateTime.Today,
-            Time = new TimeSpan(14,15,0),
-            Title = "Work progress",
-            PrimaryMood = "Focused"
-        }
-    };
+    private List<EntriesModel> AllEntries = new();
 
     private List<EntriesModel> EntriesToday =>
         AllEntries
             .Where(e => SelectedDate.HasValue && e.Date.Date == SelectedDate.Value.Date)
             .OrderBy(e => e.Time)
             .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Auth.CurrentUserId.HasValue)
+        {
+            AllEntries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+        }
+    }
+
+    private void ShowEntryPopup(EntriesModel entry)
+    {
+        var parameters = new DialogParameters { ["Entry"] = entry };
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true };
+        await DialogService.ShowAsync<EntryDetailDialog>("Entry Details", parameters, options);
+    }
 }

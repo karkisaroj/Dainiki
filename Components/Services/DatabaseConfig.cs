@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dainiki.Components.Services
 {
-    internal static class Constants
+    internal static class DatabaseConfig
     {
 
         public const string DatabaseFilename = "Dainiki.db";

@@ -1,0 +1,58 @@
+﻿@using Dainiki.Components.Models
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h4">@Entry.Title</MudText>
+
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-4">
+            @Entry.Date.ToString("dddd, MMMM dd, yyyy") at @(Entry.Time.HasValue ? DateTime.Today.Add(Entry.Time.Value).ToString("hh:mm tt") : "Time not set")
+        </MudText>
+        <MudSpacer/>
+        <MudText Typo="Typo.body2" Class="mt-4">Primary Mood:</MudText>
+        <MudChip T="string" Color="Color.Primary" Class="mb-3">@Entry.PrimaryMood</MudChip>
+
+        @if (!string.IsNullOrWhiteSpace(Entry.SecondaryMoods))
+        {
+            <MudText Typo="Typo.body2" Class="mt-4">Secondary Moods:</MudText>
+            <MudStack Row="true" Spacing="1"">
+                @foreach (var mood in Entry.SecondaryMoods.Split(','))
+                {
+                    <MudChip T="string" Color="Color.Secondary">@mood.Trim()</MudChip>
+                }
+            </MudStack>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Entry.Tags))
+        {
+            <MudText Typo="Typo.body2" Class="mt-4">Tags:</MudText>
+            <MudStack Row="true" Spacing="1" >
+                @foreach (var tag in Entry.Tags.Split(','))
+                {
+                    <MudChip T="string" Color="Color.Info">#@tag.Trim()</MudChip>
+                }
+            </MudStack>
+        }
+
+        <MudDivider Class="my-4" />
+
+        <MudText Typo="Typo.body1">
+            @((MarkupString)Entry.Content)
+        </MudText>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="CloseDialog" Color="Color.Primary">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance Dialog { get; set; } = default!;
+    [Parameter] public EntriesModel Entry { get; set; } = new();
+
+    private void CloseDialog()
+    {
+        Dialog.Close();
+    }
+}

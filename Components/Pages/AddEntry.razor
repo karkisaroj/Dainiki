@@ -2,7 +2,9 @@
 @using MudBlazor
 @inject IJSRuntime JS
 @inject AuthService Auth
+@inject QuillEditorService Quill
 @implements IAsyncDisposable
+@inject EntityService Entities
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
     <MudText Typo="Typo.h5" GutterBottom>
@@ -127,7 +129,7 @@
 
     private async Task SaveEntry()
     {
-        var content = await JS.InvokeAsync<string>("getQuillContent");
+        var content = await Quill.GetContentAsync();
 
         var entry = new EntriesModel
         {
@@ -142,15 +144,11 @@
             UpdatedAt = DateTime.Now
         };
 
-        await Auth.SaveEntryAsync(entry);
+        await Entities.SaveEntryAsync(entry,Auth.CurrentUserId??0);
     }
 
     public async ValueTask DisposeAsync()
     {
-        try
-        {
-            await JS.InvokeVoidAsync("destroyQuill");
-        }
-        catch { }
+      await JS.InvokeVoidAsync("destroyQuill"); 
     }
 }

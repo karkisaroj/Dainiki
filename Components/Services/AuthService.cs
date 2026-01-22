@@ -56,14 +56,7 @@ namespace Dainiki.Components.Services
             }
         }
 
-        public async Task<int> SaveEntryAsync(EntriesModel entry)
-        {
-            entry.UserId = CurrentUserId ?? 0;
-            entry.CreatedAt = DateTime.Now;
-            entry.UpdatedAt = DateTime.Now;
-
-            return await _db.SaveEntryAsync(entry);
-        }
+       
         public void Logout()
         {
             IsLoggedIn = false;
