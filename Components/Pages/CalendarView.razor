@@ -73,6 +73,6 @@
     {
         var parameters = new DialogParameters { ["Entry"] = entry };
         var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true };
-        await DialogService.ShowAsync<EntryDetailDialog>("Entry Details", parameters, options);
+         DialogService.ShowAsync<EntryDetailDialog>("Entry Details", parameters, options);
     }
 }

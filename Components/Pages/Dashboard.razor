@@ -2,6 +2,7 @@
 @using Dainiki.Components.Services
 @inject AuthService Auth
 @inject NavigationManager NavManager
+@inject EntityService Entities
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudText Typo="Typo.h3" Class="mb-6" Color="Color.Primary">
@@ -43,7 +44,7 @@
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Add"
-                               Href="/journalentry"
+                               Href="/addentry"
                                Size="Size.Medium">
                         New Entry
                     </MudButton>
@@ -77,7 +78,7 @@
                                         <MudText Typo="Typo.caption"
                                                  Color="Color.Secondary"
                                                  Class="mt-1">
-                                            @entry.Date.ToString("MMM dd, yyyy") • @entry.Time.ToString("hh:mm tt")
+                                            @entry.Date.ToString("MMM dd, yyyy") - @(entry.Time.HasValue?DateTime.Today.Add(entry.Time.Value).ToString("hh:mm tt"):"Time not set" )
                                         </MudText>
                                     </div>
 
@@ -94,32 +95,42 @@
                                 </div>
 
                                 <MudStack Row="true" Spacing="1" Class="mb-3">
-                                    @foreach (var mood in entry.Moods)
+                                    @if (!string.IsNullOrWhiteSpace(entry.PrimaryMood))
                                     {
-                                        <MudChip T="string"
-                                                 Color="Color.Success"
-                                                 Variant="Variant.Filled"
-                                                 Size="Size.Small">
-                                            @mood
+                                        <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Size="Size.Small">
+                                            @entry.PrimaryMood
                                         </MudChip>
                                     }
+
+                                    @if (!string.IsNullOrWhiteSpace(entry.SecondaryMoods))
+                                    {
+                                        foreach (var mood in entry.SecondaryMoods.Split(','))
+                                        {
+                                            <MudChip T="string" Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Small">
+                                                @mood.Trim()
+                                            </MudChip>
+                                        }
+                                    }
+
                                 </MudStack>
 
-                                <MudText Typo="Typo.body2"
-                                         Color="Color.Secondary"
-                                         Class="line-clamp-3">
-                                    @entry.ContentPreview
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="line-clamp-3">
+                                    @((MarkupString)entry.Content)
                                 </MudText>
 
+
                                 <MudStack Row="true" Spacing="1" Class="mt-3">
-                                    @foreach (var tag in entry.Tags)
+                                    @if (!String.IsNullOrWhiteSpace(entry.Tags))
+                                    {
+                                    @foreach (var tag in entry.Tags.Split(","))
                                     {
                                         <MudChip T="string"
                                                  Color="Color.Default"
                                                  Variant="Variant.Text"
                                                  Size="Size.Small">
-                                            #@tag
+                                            #@tag.Trim()
                                         </MudChip>
+                                    }
                                     }
                                 </MudStack>
                             </MudPaper>
@@ -169,52 +180,19 @@
 </MudContainer>
 
 @code {
-    private List<JournalEntry> RecentEntries { get; set; } = new()
-    {
-        new JournalEntry
-        {
-            Date = new DateTime(2026, 1, 15),
-            Time = new TimeOnly(9, 30),
-            Title = "A Productive Day",
-            ContentPreview = "Today was amazing! I accomplished all my goals and felt really positive about the progress I made on my project. The morning started with a great...",
-            Moods = new[] { "Happy", "Excited", "Motivated" },
-            Tags = new[] { "productivity", "work", "goals" }
-        },
-        new JournalEntry
-        {
-            Date = new DateTime(2026, 1, 14),
-            Time = new TimeOnly(20, 15),
-            Title = "Quiet Reflection",
-            ContentPreview = "Spent the day thinking about my future goals. Not particularly exciting, but felt like a necessary pause. Sometimes we need these quiet moments...",
-            Moods = new[] { "Calm", "Thoughtful" },
-            Tags = new[] { "reflection", "planning" }
-        },
-        new JournalEntry
-        {
-            Date = new DateTime(2026, 1, 13),
-            Time = new TimeOnly(21, 0),
-            Title = "Challenging Moments",
-            ContentPreview = "Faced some tough challenges today. It wasn't easy, but pushing through built resilience...",
-            Moods = new[] { "Stressed", "Determined" },
-            Tags = new[] { "challenges", "growth" }
-        }
-    };
+    private List<EntriesModel> RecentEntries { get; set; } = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (!Auth.IsLoggedIn)
         {
             NavManager.NavigateTo("/login");
+            return;
+        }
+        if (Auth.CurrentUserId.HasValue)
+        {
+            RecentEntries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
         }
     }
-
-    private class JournalEntry
-    {
-        public DateTime Date { get; set; }
-        public TimeOnly Time { get; set; }
-        public string Title { get; set; } = "";
-        public string ContentPreview { get; set; } = "";
-        public string[] Moods { get; set; } = Array.Empty<string>();
-        public string[] Tags { get; set; } = Array.Empty<string>();
-    }
+    
 }
