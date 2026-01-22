@@ -2,6 +2,9 @@
 @using Dainiki.Components.Models
 @using MudBlazor
 @inject NavigationManager Navigation
+@inject AuthService Auth
+@inject EntityService Entity
+
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-6">
     <div class="d-flex justify-space-between align-center mb-6">
@@ -47,7 +50,7 @@
                                 <MudIcon Icon="@Icons.Material.Filled.AccessTime"
                                          Size="Size.Small"
                                          Class="ml-1 mr-1" />
-                                @(entry.Time?.ToString("hh:mm tt") ?? "Time not set")
+                                @(entry.Time.HasValue?DateTime.Today.Add(entry.Time.Value).ToString("hh:mm tt"):"Time not set")
                             </MudText>
                         </ItemOpposite>
 
@@ -91,31 +94,22 @@
 </MudContainer>
 
 @code {
-    private List<EntriesModel> AllEntries { get; set; } = new()
+    private List<EntriesModel> AllEntries { get; set; } = new();
+    protected override async Task OnInitializedAsync()
     {
-        new EntriesModel
+        if (!Auth.IsLoggedIn)
         {
-            Id = 1, 
-            Date = DateTime.Today, 
-            Time = new TimeSpan(10, 0, 0), 
-            Title = "A Productive Day", 
-            PrimaryMood = "Happy"
-           
-        },
-        new EntriesModel
+            Navigation.NavigateTo("/login");
+        }
+        if (Auth.CurrentUserId.HasValue)
         {
-            Id = 2,
-            Date = new DateTime(2026, 1, 14),
-            Time = new TimeSpan(20, 15, 0),
-            Title = "Quiet Reflection",
-            PrimaryMood = "Calm",
-           
-        },
-    };
+            AllEntries = await Entity.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+        }
+    }
 
     private void EditEntry(EntriesModel entry)
     {
-        Navigation.NavigateTo($"/journalentry/{entry.Id}");
+        Navigation.NavigateTo($"/addentry/{entry.Id}");
     }
 
     private void DeleteEntry(EntriesModel entry)

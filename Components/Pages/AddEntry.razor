@@ -1,10 +1,11 @@
-﻿@page "/addentry"
+﻿@page "/addentry/{id:int?}"
 @using MudBlazor
 @inject IJSRuntime JS
 @inject AuthService Auth
 @inject QuillEditorService Quill
 @implements IAsyncDisposable
 @inject EntityService Entities
+@inject NavigationManager Navigate
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
     <MudText Typo="Typo.h5" GutterBottom>
@@ -102,6 +103,7 @@
 
 @code {
     private bool ShowPreview;
+    [Parameter] public int? Id { get; set; }
     private string PreviewContent = "";
     private string Title = "";
     private string PrimaryMood = "";
@@ -117,6 +119,20 @@
     {
         if (firstRender)
             await JS.InvokeVoidAsync("initializeQuill");
+        if (Id.HasValue)
+        {
+            var existingEntry=await Entities.GetEntryByIdAsync(Id.Value);
+            if (existingEntry != null)
+            {
+                Title = existingEntry.Title;
+                PrimaryMood = existingEntry.PrimaryMood;
+                SecondaryMoods = existingEntry.SecondaryMoods?.Split(',').ToList()??new();
+                PhaseOfLife = existingEntry.PhaseOfLife;
+                Tags = existingEntry.Tags;
+                await JS.InvokeVoidAsync("setQuillContent", existingEntry.Content);
+                StateHasChanged();
+            }
+        }
     }
 
     private async Task TogglePreview()
@@ -133,6 +149,7 @@
 
         var entry = new EntriesModel
         {
+            
             UserId = Auth.CurrentUserId ?? 0,
             Title = Title,
             Content = content,
@@ -145,6 +162,7 @@
         };
 
         await Entities.SaveEntryAsync(entry,Auth.CurrentUserId??0);
+        Navigate.NavigateTo("/dashboard");
     }
 
     public async ValueTask DisposeAsync()

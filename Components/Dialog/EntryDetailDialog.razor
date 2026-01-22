@@ -15,7 +15,7 @@
         @if (!string.IsNullOrWhiteSpace(Entry.SecondaryMoods))
         {
             <MudText Typo="Typo.body2" Class="mt-4">Secondary Moods:</MudText>
-            <MudStack Row="true" Spacing="1"">
+            <MudStack Row="true" Spacing="1">
                 @foreach (var mood in Entry.SecondaryMoods.Split(','))
                 {
                     <MudChip T="string" Color="Color.Secondary">@mood.Trim()</MudChip>
@@ -26,7 +26,7 @@
         @if (!string.IsNullOrWhiteSpace(Entry.Tags))
         {
             <MudText Typo="Typo.body2" Class="mt-4">Tags:</MudText>
-            <MudStack Row="true" Spacing="1" >
+            <MudStack Row="true" Spacing="1">
                 @foreach (var tag in Entry.Tags.Split(','))
                 {
                     <MudChip T="string" Color="Color.Info">#@tag.Trim()</MudChip>

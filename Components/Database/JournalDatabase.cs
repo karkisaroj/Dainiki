@@ -28,7 +28,14 @@ namespace Dainiki.Components.Database
         {
             return await _db.Table<User>().FirstOrDefaultAsync(u => u.Username == username && u.Password == password);
         }
+        public async Task<int> SaveOrUpdateEntryAsync(EntriesModel entry)
+        {
+            entry.UpdatedAt = DateTime.Now;
+            if (entry.CreatedAt == default)
+                entry.CreatedAt = DateTime.Now;
 
+            return await _db.InsertOrReplaceAsync(entry);
+        }
         public async Task<User?> GetUserByUsernameAsync(string username) =>
            await _db.Table<User>().FirstOrDefaultAsync(u => u.Username == username);
         public async Task UpdateUserThemePreferenceAsync(int userId, bool isDarkMode)
@@ -40,13 +47,19 @@ namespace Dainiki.Components.Database
                 await _db.UpdateAsync(user);
             }
         }
-        public async Task<int> SaveEntryAsync(EntriesModel entry)
-        {
-            return await _db.InsertAsync(entry);
-        }
         public async Task<List<EntriesModel>> GetEntriesByUserAsync(int UserId)
         {
             return await _db.Table<EntriesModel>().Where(e=>e.UserId==UserId).ToListAsync();
+        }
+        public async Task<EntriesModel?> GetEntryByIdAsync(int id)
+             => await _db.Table<EntriesModel>().FirstOrDefaultAsync(e => e.Id == id);
+
+        public async Task<int> UpdateEntryAsync(EntriesModel entry)=> await _db.UpdateAsync(entry);
+
+        public async Task<int> DeleteEntryAsync(int id)
+        {
+            var entry = await GetEntryByIdAsync(id);
+            return entry != null ? await _db.DeleteAsync(entry) : 0;
         }
     }
 }

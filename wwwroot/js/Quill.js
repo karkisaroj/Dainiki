@@ -18,6 +18,12 @@ window.initializeQuill = function () {
     });
 };
 
+window.setQuillContent = function (html) {
+    if (quill) {
+        quill.root.innerHTML = html;
+    }
+}
+
 window.getQuillContent = function () {
     return quill ? quill.root.innerHTML : '';
 };

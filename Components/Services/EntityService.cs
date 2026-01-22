@@ -16,18 +16,25 @@ namespace Dainiki.Components.Services
             _db = db;
         }
 
+        public async Task<int> UpdateEntryAsync(EntriesModel entry)
+        {
+            entry.UpdatedAt = DateTime.Now;
+            return await _db.UpdateEntryAsync(entry);
+        }
+
+        public Task<List<EntriesModel>> GetEntriesByUserAsync(int userId)
+       => _db.GetEntriesByUserAsync(userId);
+
+        public Task<EntriesModel?> GetEntryByIdAsync(int id)
+            => _db.GetEntryByIdAsync(id);
+
+    
         public async Task<int> SaveEntryAsync(EntriesModel entry, int userId)
         {
             entry.UserId = userId;
-            entry.CreatedAt = DateTime.Now;
-            entry.UpdatedAt = DateTime.Now;
-
-            return await _db.SaveEntryAsync(entry);
+            return await _db.SaveOrUpdateEntryAsync(entry);
         }
-
-        public async Task<List<EntriesModel>> GetEntriesByUserAsync(int userId)
-        {
-            return await _db.GetEntriesByUserAsync(userId);
-        }
+        public Task<int> DeleteEntryAsync(int id)
+            => _db.DeleteEntryAsync(id);
     }
 }
