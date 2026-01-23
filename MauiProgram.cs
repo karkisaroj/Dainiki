@@ -4,6 +4,7 @@ using Dainiki.Components.Shared;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 
+
 namespace Dainiki
 {
     public static class MauiProgram
