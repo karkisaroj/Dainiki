@@ -100,6 +100,13 @@
                OnClick="SaveEntry">
         Save Entry
     </MudButton>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Success"
+               Size="Size.Large"
+               Class="mt-6"
+               OnClick="CancelEntry">
+        Cancel Entry
+    </MudButton>
 </MudContainer>
 
 @code {
@@ -159,9 +166,7 @@
     {
         Content = await Quill.GetContentAsync();
 
-        var existingEntry = Id.HasValue
-            ? await Entities.GetEntryByIdAsync(Id.Value)
-            : null;
+        var existingEntry = Id.HasValue? await Entities.GetEntryByIdAsync(Id.Value): null;
 
         var entry = new EntriesModel
         {
