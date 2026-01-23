@@ -20,14 +20,21 @@ window.initializeQuill = function () {
 
 window.setQuillContent = function (html) {
     if (quill) {
-        quill.root.innerHTML = html;
+        quill.setContents([]); 
+        quill.clipboard.dangerouslyPasteHTML(html); 
     }
-}
+};
 
 window.getQuillContent = function () {
-    return quill ? quill.root.innerHTML : '';
+    if (quill) {
+        return quill.root.innerHTML;
+    }
+    return "";
 };
 
 window.destroyQuill = function () {
-    quill = null;
+    if (quill) {
+        quill = null;
+    }
 };
+

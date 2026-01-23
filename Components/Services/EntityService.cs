@@ -22,11 +22,9 @@ namespace Dainiki.Components.Services
             return await _db.UpdateEntryAsync(entry);
         }
 
-        public Task<List<EntriesModel>> GetEntriesByUserAsync(int userId)
-       => _db.GetEntriesByUserAsync(userId);
+        public Task<List<EntriesModel>> GetEntriesByUserAsync(int userId)=> _db.GetEntriesByUserAsync(userId);
 
-        public Task<EntriesModel?> GetEntryByIdAsync(int id)
-            => _db.GetEntryByIdAsync(id);
+        public Task<EntriesModel?> GetEntryByIdAsync(int id)=> _db.GetEntryByIdAsync(id);
 
     
         public async Task<int> SaveEntryAsync(EntriesModel entry, int userId)
@@ -34,7 +32,6 @@ namespace Dainiki.Components.Services
             entry.UserId = userId;
             return await _db.SaveOrUpdateEntryAsync(entry);
         }
-        public Task<int> DeleteEntryAsync(int id)
-            => _db.DeleteEntryAsync(id);
+        public Task<int> DeleteEntryAsync(int id) => _db.DeleteEntryAsync(id);
     }
 }

@@ -3,6 +3,7 @@
 @inject AuthService Auth
 @inject NavigationManager NavManager
 @inject EntityService Entities
+@inject ISnackbar Snackbar
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudText Typo="Typo.h3" Class="mb-6" Color="Color.Primary">
@@ -86,10 +87,12 @@
                                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                                        Size="Size.Small"
                                                        Color="Color.Secondary"
+                                                       OnClick="()=>EditEntry(entry)"
                                                        AriaLabel="Edit entry" />
                                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                                        Size="Size.Small"
                                                        Color="Color.Error"
+                                                       OnClick="()=>DeleteEntry(entry)"
                                                        AriaLabel="Delete entry" />
                                     </div>
                                 </div>
@@ -194,5 +197,24 @@
             RecentEntries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
         }
     }
-    
+    private void EditEntry(EntriesModel entry)
+    {
+        NavManager.NavigateTo($"/addentry/{entry.Id}");
+    }
+
+    private void DeleteEntry(EntriesModel entry)
+    {
+        bool removed=RecentEntries.Remove(entry);
+        if (removed)
+        {
+            Entities.DeleteEntryAsync(entry.Id);
+            StateHasChanged();
+            Snackbar.Add("Deleted Successfully", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Failed to delete", Severity.Error);
+        }
+    }
+
 }

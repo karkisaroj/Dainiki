@@ -6,6 +6,7 @@
 @implements IAsyncDisposable
 @inject EntityService Entities
 @inject NavigationManager Navigate
+@inject ISnackbar snackbar
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
     <MudText Typo="Typo.h5" GutterBottom>
@@ -103,6 +104,7 @@
 
 @code {
     private bool ShowPreview;
+    private string Content="";
     [Parameter] public int? Id { get; set; }
     private string PreviewContent = "";
     private string Title = "";
@@ -115,22 +117,32 @@
     private List<string> SecondaryMoodOptions = ["Work", "Health", "Travel", "Relationships", "Study"];
     private List<string> LifePhases = ["School life", "College life", "Work life", "Family life"];
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-            await JS.InvokeVoidAsync("initializeQuill");
         if (Id.HasValue)
         {
-            var existingEntry=await Entities.GetEntryByIdAsync(Id.Value);
+            var existingEntry = await Entities.GetEntryByIdAsync(Id.Value);
             if (existingEntry != null)
             {
                 Title = existingEntry.Title;
                 PrimaryMood = existingEntry.PrimaryMood;
-                SecondaryMoods = existingEntry.SecondaryMoods?.Split(',').ToList()??new();
+                SecondaryMoods = existingEntry.SecondaryMoods?.Split(',').ToList() ?? new();
                 PhaseOfLife = existingEntry.PhaseOfLife;
                 Tags = existingEntry.Tags;
-                await JS.InvokeVoidAsync("setQuillContent", existingEntry.Content);
-                StateHasChanged();
+                Content = existingEntry.Content;
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initializeQuill");
+
+            if (!string.IsNullOrEmpty(Content))
+            {
+                await JS.InvokeVoidAsync("setQuillContent", Content);
             }
         }
     }
@@ -145,28 +157,42 @@
 
     private async Task SaveEntry()
     {
-        var content = await Quill.GetContentAsync();
+        Content = await Quill.GetContentAsync();
+
+        var existingEntry = Id.HasValue
+            ? await Entities.GetEntryByIdAsync(Id.Value)
+            : null;
 
         var entry = new EntriesModel
         {
-            
+            Id = Id ?? 0,
             UserId = Auth.CurrentUserId ?? 0,
             Title = Title,
-            Content = content,
+            Content = Content,
             PrimaryMood = PrimaryMood,
             SecondaryMoods = string.Join(",", SecondaryMoods),
             PhaseOfLife = PhaseOfLife,
             Tags = Tags,
-            CreatedAt = DateTime.Now,
+            CreatedAt = existingEntry?.CreatedAt ?? DateTime.Now,
             UpdatedAt = DateTime.Now
         };
 
-        await Entities.SaveEntryAsync(entry,Auth.CurrentUserId??0);
+        if (Id.HasValue)
+            await Entities.UpdateEntryAsync(entry);
+        else
+            await Entities.SaveEntryAsync(entry, Auth.CurrentUserId ?? 0);
+
         Navigate.NavigateTo("/dashboard");
     }
 
     public async ValueTask DisposeAsync()
     {
-      await JS.InvokeVoidAsync("destroyQuill"); 
+        await JS.InvokeVoidAsync("destroyQuill"); 
+    }
+
+    public async Task CancelEntry()
+    {
+        Navigate.NavigateTo("/entries");
+        snackbar.Add("Cancelled entry", Severity.Info);
     }
 }
