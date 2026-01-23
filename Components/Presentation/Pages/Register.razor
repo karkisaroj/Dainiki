@@ -1,6 +1,6 @@
 ﻿@page "/register"
+@using Dainiki.Components.Application.Services
 @using Dainiki.Components.Models
-@using Dainiki.Components.Services
 @inject AuthService Auth
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
@@ -53,7 +53,7 @@
                       Immediate="true"
                       Required="true"
                       RequiredError="Please confirm your password"
-                      Validation="@(new Func<string, string>(PasswordMatch))"
+                      Validation="@(new Func<string, string?>(PasswordMatch))"
                       Variant="Variant.Outlined"
                       Class="mb-2" />
         <MudText Typo="Typo.caption" Class="mb-6" Style="color: #666;">
@@ -113,7 +113,7 @@
     private MudForm ?form;
     private bool success;
     private string[] errors = { };
-    private bool agree;
+    // private bool agree;
 
     private RegisterModel registerModel = new();
 
@@ -167,7 +167,7 @@
             yield return "Password must contain at least one digit";
     }
 
-    private string PasswordMatch(string arg)
+    private string? PasswordMatch(string arg)
     {
         if (registerModel.Password != arg)
             return "Passwords don't match";

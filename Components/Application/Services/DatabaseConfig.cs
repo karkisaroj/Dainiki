@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dainiki.Components.Services
+namespace Dainiki.Components.Application.Services
 {
     internal static class DatabaseConfig
     {

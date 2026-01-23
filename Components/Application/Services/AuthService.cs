@@ -2,7 +2,7 @@
 using Dainiki.Components.Models;
 using Dainiki.Components.Database;
 using System.Threading.Tasks;
-namespace Dainiki.Components.Services
+namespace Dainiki.Components.Application.Services
 {
     public class AuthService(JournalDatabase db)
     {

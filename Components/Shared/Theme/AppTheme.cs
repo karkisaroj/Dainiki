@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MudBlazor;
 
-namespace Dainiki.Components.Theme
+namespace Dainiki.Components.Shared.Theme
 {
     public class AppTheme : MudTheme
     {

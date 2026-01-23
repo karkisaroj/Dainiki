@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dainiki.Components.Shared
+namespace Dainiki.Components.Utils
 {
     public class EntityMetricsCalculator
     {
