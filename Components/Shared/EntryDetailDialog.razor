@@ -1,6 +1,7 @@
 ﻿@using Dainiki.Components.Models
 @using MudBlazor
 
+
 <MudDialog>
     <DialogContent>
         <MudText Typo="Typo.h4">@Entry.Title</MudText>
@@ -10,7 +11,7 @@
         </MudText>
         <MudSpacer/>
         <MudText Typo="Typo.body2" Class="mt-4">Primary Mood:</MudText>
-        <MudChip T="string" Color="Color.Primary" Class="mb-3">@Entry.PrimaryMood</MudChip>
+        <MudChip T="string" Color="Color.Default" Class="mb-3">@Entry.PrimaryMood</MudChip>
 
         @if (!string.IsNullOrWhiteSpace(Entry.SecondaryMoods))
         {
@@ -18,7 +19,7 @@
             <MudStack Row="true" Spacing="1">
                 @foreach (var mood in Entry.SecondaryMoods.Split(','))
                 {
-                    <MudChip T="string" Color="Color.Secondary">@mood.Trim()</MudChip>
+                    <MudChip T="string" Color="Color.Surface">@mood.Trim()</MudChip>
                 }
             </MudStack>
         }

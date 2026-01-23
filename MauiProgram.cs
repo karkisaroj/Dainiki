@@ -1,5 +1,6 @@
 ﻿using Dainiki.Components.Database;
 using Dainiki.Components.Services;
+using Dainiki.Components.Shared;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 
@@ -23,6 +24,7 @@ namespace Dainiki
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<QuillEditorService> ();
             builder.Services.AddScoped<EntityService>();
+            builder.Services.AddScoped<EntityMetricsCalculator>();
 
 
 #if DEBUG

@@ -1,4 +1,5 @@
 ﻿@page "/addentry/{id:int?}"
+@using Dainiki.Components.Models
 @using MudBlazor
 @inject IJSRuntime JS
 @inject AuthService Auth
@@ -150,6 +151,7 @@
             if (!string.IsNullOrEmpty(Content))
             {
                 await JS.InvokeVoidAsync("setQuillContent", Content);
+                StateHasChanged();
             }
         }
     }
@@ -170,7 +172,6 @@
 
         var entry = new EntriesModel
         {
-            Id = Id ?? 0,
             UserId = Auth.CurrentUserId ?? 0,
             Title = Title,
             Content = Content,
@@ -186,7 +187,7 @@
             await Entities.UpdateEntryAsync(entry);
         else
             await Entities.SaveEntryAsync(entry, Auth.CurrentUserId ?? 0);
-
+        StateHasChanged();
         Navigate.NavigateTo("/dashboard");
     }
 
@@ -195,9 +196,9 @@
         await JS.InvokeVoidAsync("destroyQuill"); 
     }
 
-    public async Task CancelEntry()
+    public void CancelEntry()
     {
         Navigate.NavigateTo("/entries");
-        snackbar.Add("Cancelled entry", Severity.Info);
+         snackbar.Add("Cancelled entry", Severity.Info);
     }
 }

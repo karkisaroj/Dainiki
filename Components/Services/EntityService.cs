@@ -1,4 +1,5 @@
 ﻿using Dainiki.Components.Database;
+using Dainiki.Components.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,15 @@ namespace Dainiki.Components.Services
         public async Task<int> SaveEntryAsync(EntriesModel entry, int userId)
         {
             entry.UserId = userId;
-            return await _db.SaveOrUpdateEntryAsync(entry);
+            if (entry.Id == 0)
+            {
+                return await _db.InsertEntryAsync(entry);
+            }
+            else
+            {
+                return await _db.UpdateEntryAsync(entry);
+            }
+           
         }
         public Task<int> DeleteEntryAsync(int id) => _db.DeleteEntryAsync(id);
     }

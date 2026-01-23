@@ -1,9 +1,13 @@
 ﻿@page "/dashboard"
+@using MudBlazor
 @using Dainiki.Components.Services
+@using Dainiki.Components.Shared
+@using Dainiki.Components.Models
 @inject AuthService Auth
 @inject NavigationManager NavManager
 @inject EntityService Entities
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudText Typo="Typo.h3" Class="mb-6" Color="Color.Primary">
@@ -14,25 +18,25 @@
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
                 <MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Total Entries</MudText>
-                <MudText Typo="Typo.h3" Color="Color.Primary" Align="Align.Center" Class="mt-3">0</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Primary" Align="Align.Center" Class="mt-3">@Metrics.TotalEntries</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
                 <MudText Typo="Typo.h6" Color="Color.Secondary" Align="Align.Center">This Week</MudText>
-                <MudText Typo="Typo.h3" Color="Color.Secondary" Align="Align.Center" Class="mt-3">0</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Secondary" Align="Align.Center" Class="mt-3">@Metrics.EntriesThisWeek</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
                 <MudText Typo="Typo.h6" Color="Color.Tertiary" Align="Align.Center">This Month</MudText>
-                <MudText Typo="Typo.h3" Color="Color.Tertiary" Align="Align.Center" Class="mt-3">0</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Tertiary" Align="Align.Center" Class="mt-3">@Metrics.TotalEntriesThisMonth</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Elevation="2" Class="pa-5 d-flex flex-column justify-center" Style="height: 150px;">
                 <MudText Typo="Typo.h6" Color="Color.Success" Align="Align.Center">Current Streak</MudText>
-                <MudText Typo="Typo.h3" Color="Color.Success" Align="Align.Center" Class="mt-3">0 days</MudText>
+                <MudText Typo="Typo.h3" Color="Color.Success" Align="Align.Center" Class="mt-3">@Metrics.CurrentStreakDays days</MudText>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -184,6 +188,7 @@
 
 @code {
     private List<EntriesModel> RecentEntries { get; set; } = new();
+    private EntityMetrics Metrics = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -192,23 +197,31 @@
             NavManager.NavigateTo("/login");
             return;
         }
+        await RefreshEntriesAndMetrics();
+
+    }
+    private async Task RefreshEntriesAndMetrics()
+    {
         if (Auth.CurrentUserId.HasValue)
         {
             RecentEntries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+            Metrics = EntityMetricsCalculator.Calculate(RecentEntries);
+            StateHasChanged();
         }
     }
+
     private void EditEntry(EntriesModel entry)
     {
         NavManager.NavigateTo($"/addentry/{entry.Id}");
     }
 
-    private void DeleteEntry(EntriesModel entry)
+    private async Task DeleteEntry(EntriesModel entry)
     {
         bool removed=RecentEntries.Remove(entry);
         if (removed)
         {
-            Entities.DeleteEntryAsync(entry.Id);
-            StateHasChanged();
+            await Entities.DeleteEntryAsync(entry.Id);
+            await RefreshEntriesAndMetrics();
             Snackbar.Add("Deleted Successfully", Severity.Success);
         }
         else
