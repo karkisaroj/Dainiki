@@ -35,6 +35,12 @@ namespace Dainiki.Components.Database
             return await _db.InsertAsync(entry); 
         }
 
+        public async Task<EntriesModel?> GetEntryByDateAsync(int userId, DateTime date)
+        {
+            return await _db.Table<EntriesModel>()
+                .FirstOrDefaultAsync(e => e.UserId == userId && e.Date == date);
+        }
+
         public async Task<int> UpdateEntryAsync(EntriesModel entry)
         {
             return await _db.UpdateAsync(entry); 

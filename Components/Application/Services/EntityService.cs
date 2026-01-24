@@ -25,6 +25,10 @@ namespace Dainiki.Components.Application.Services
 
         public Task<List<EntriesModel>> GetEntriesByUserAsync(int userId)=> _db.GetEntriesByUserAsync(userId);
 
+        public async Task<EntriesModel?> GetEntryByDateAsync(int userId, DateTime date)
+        {
+            return await _db.GetEntryByDateAsync(userId, date);
+        }
         public Task<EntriesModel?> GetEntryByIdAsync(int id)=> _db.GetEntryByIdAsync(id);
 
     

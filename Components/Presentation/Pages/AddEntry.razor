@@ -213,13 +213,20 @@
     private async Task SaveEntry()
     {
         Content = await Quill.GetContentAsync();
-
+        var todayEntry = await Entities.GetEntryByDateAsync(Auth.CurrentUserId ?? 0, DateTime.UtcNow.Date);
         var existingEntry = Id.HasValue? await Entities.GetEntryByIdAsync(Id.Value): null;
         bool hasCustomTags = !string.IsNullOrWhiteSpace(Tags);
         bool hasPredefinedTags = PreDefinedTags != null && PreDefinedTags.Any();
         if(!hasCustomTags && !hasPredefinedTags)
         {
             snackbar.Add("Please provide either custom tags or choose predefined tags", Severity.Error);
+            return;
+        }
+        //This is for testing today entry to validate the entry today is already done or not
+        Console.WriteLine($"Checking for entry on {DateTime.UtcNow.Date} for user {Auth.CurrentUserId}"); 
+        if (!Id.HasValue && todayEntry != null)
+        {
+            snackbar.Add("You can only create one entry per day.", Severity.Error);
             return;
         }
         var entry = new EntriesModel
@@ -233,6 +240,7 @@
             PhaseOfLife = PhaseOfLife,
             Tags = Tags,
             PreDefinedTags=hasPredefinedTags?string.Join(",",PreDefinedTags!):null,
+            Date = existingEntry?.Date ?? DateTime.UtcNow.Date,
             CreatedAt = existingEntry?.CreatedAt ?? DateTime.Now,
             UpdatedAt = DateTime.Now
         };
