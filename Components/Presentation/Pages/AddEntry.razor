@@ -65,7 +65,7 @@
                        Label="Secondary Moods"
                        MultiSelection
                        SelectedValues="SecondaryMoods"
-                       SelectedValuesChanged="v => SecondaryMoods = v.ToList()"
+                       SelectedValuesChanged="OnSecondaryMoodsChanged"
                        Variant="Variant.Outlined"
                        FullWidth>
                 @foreach (var mood in SecondaryMoodOptions)
@@ -95,6 +95,25 @@
                   FullWidth
                   Class="mt-6" />
 
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="string"
+                       Label="Select Pre-Defined Tags (Optional)"
+                       MultiSelection
+                       SelectedValues="PreDefinedTags"
+                       SelectedValuesChanged="v => PreDefinedTags = v.ToList()"
+                       Variant="Variant.Outlined"
+                       FullWidth>
+                @if (PreDefinedTagsOptions != null)
+                {
+                    @foreach (var mood in PreDefinedTagsOptions)
+                    {
+                        <MudSelectItem Value="@mood">@mood</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
     <MudButton Variant="Variant.Filled"
                Color="Color.Success"
                Size="Size.Large"
@@ -121,10 +140,16 @@
     private List<string> SecondaryMoods = new();
     private string PhaseOfLife = "";
     private string Tags = "";
+    private List<string>? PreDefinedTags = new();
 
     private List<string> PrimaryMoods = ["Happy", "Sad", "Calm", "Angry", "Excited"];
     private List<string> SecondaryMoodOptions = ["Work", "Health", "Travel", "Relationships", "Study"];
     private List<string> LifePhases = ["School life", "College life", "Work life", "Family life"];
+    private List<string>? PreDefinedTagsOptions = ["Work", "Career", "Studies", "Family", "Friends", "Relationships",
+    "Health", "Fitness", "Personal Growth", "Self","care", "Hobbies", "Travel", "Nature",
+    "Finance", "Spirituality", "Birthday", "Holiday", "Vacation", "Celebration", "Exercise",
+    "Reading", "Writing", "Cooking", "Meditation", "Yoga", "Music", "Shopping", "Parenting",
+    "Projects", "Planning", "Reflection"];
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,12 +160,32 @@
             {
                 Title = existingEntry.Title;
                 PrimaryMood = existingEntry.PrimaryMood;
-                SecondaryMoods = existingEntry.SecondaryMoods?.Split(',').ToList() ?? new();
+                SecondaryMoods = existingEntry.SecondaryMoods?
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries).ToList() ?? new();
                 PhaseOfLife = existingEntry.PhaseOfLife;
                 Tags = existingEntry.Tags;
                 Content = existingEntry.Content;
+
+                PreDefinedTags = !string.IsNullOrWhiteSpace(existingEntry.PreDefinedTags)
+                    ? existingEntry.PreDefinedTags.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList()
+                    : new List<string>();
             }
         }
+    }
+
+    private void OnSecondaryMoodsChanged(IEnumerable<string> values)
+    {
+        var selected = values.ToList();
+        if (selected.Count > 2)
+        {
+            SecondaryMoods = selected.Take(2).ToList();
+            snackbar.Add("You can select up to 2 secondary moods only.", Severity.Warning);
+        }
+        else
+        {
+            SecondaryMoods = selected;
+        }
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -170,9 +215,16 @@
         Content = await Quill.GetContentAsync();
 
         var existingEntry = Id.HasValue? await Entities.GetEntryByIdAsync(Id.Value): null;
-
+        bool hasCustomTags = !string.IsNullOrWhiteSpace(Tags);
+        bool hasPredefinedTags = PreDefinedTags != null && PreDefinedTags.Any();
+        if(!hasCustomTags && !hasPredefinedTags)
+        {
+            snackbar.Add("Please provide either custom tags or choose predefined tags", Severity.Error);
+            return;
+        }
         var entry = new EntriesModel
         {
+            Id=existingEntry?.Id??0,
             UserId = Auth.CurrentUserId ?? 0,
             Title = Title,
             Content = Content,
@@ -180,15 +232,19 @@
             SecondaryMoods = string.Join(",", SecondaryMoods),
             PhaseOfLife = PhaseOfLife,
             Tags = Tags,
+            PreDefinedTags=hasPredefinedTags?string.Join(",",PreDefinedTags!):null,
             CreatedAt = existingEntry?.CreatedAt ?? DateTime.Now,
             UpdatedAt = DateTime.Now
         };
-
+        //if the entry id has a value when editing it update and in the else the 0 
+        //is written because it throws null exception so 0 is the fallback for null user or anonomous
+        //So the else if for new user
         if (Id.HasValue)
             await Entities.UpdateEntryAsync(entry);
         else
             await Entities.SaveEntryAsync(entry, Auth.CurrentUserId ?? 0);
         StateHasChanged();
+        snackbar.Add("Saved entry successfully", Severity.Success);
         Navigate.NavigateTo("/dashboard");
     }
 

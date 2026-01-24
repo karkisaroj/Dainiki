@@ -128,17 +128,29 @@
 
 
                                 <MudStack Row="true" Spacing="1" Class="mt-3">
-                                    @if (!String.IsNullOrWhiteSpace(entry.Tags))
+                                    @if (!string.IsNullOrWhiteSpace(entry.Tags))
                                     {
-                                    @foreach (var tag in entry.Tags.Split(","))
-                                    {
-                                        <MudChip T="string"
-                                                 Color="Color.Default"
-                                                 Variant="Variant.Text"
-                                                 Size="Size.Small">
-                                            #@tag.Trim()
-                                        </MudChip>
+                                        @foreach (var tag in entry.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            <MudChip T="string"
+                                                     Color="Color.Default"
+                                                     Variant="Variant.Text"
+                                                     Size="Size.Small">
+                                                #@tag.Trim()
+                                            </MudChip>
+                                        }
                                     }
+                                    else if (!string.IsNullOrEmpty(entry.PreDefinedTags))
+                                    {
+                                        @foreach (var tag in entry.PreDefinedTags.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            <MudChip T="string"
+                                                     Color="Color.Default"
+                                                     Variant="Variant.Text"
+                                                     Size="Size.Small">
+                                                #@tag.Trim()
+                                            </MudChip>
+                                        }
                                     }
                                 </MudStack>
                             </MudPaper>

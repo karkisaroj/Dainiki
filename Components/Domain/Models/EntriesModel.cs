@@ -20,13 +20,14 @@ namespace Dainiki.Components.Models
 
         [Required(ErrorMessage = "Primary mood is required"), StringLength(100)]
         public string PrimaryMood { get; set; } = "";
-        public string SecondaryMoods { get; set; } = "[]";
+        public string SecondaryMoods { get; set; } = "";
 
         [StringLength(150)]
-        public string PhaseOfLife { get; set; } = "[]";
+        public string PhaseOfLife { get; set; } = "";
 
-        public string Tags { get; set; } = "[]";
+        public string Tags { get; set; } = "";
 
+        public string ?PreDefinedTags { get; set; }= null;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public DateTime UpdatedAt { get; set; } = DateTime.Now;

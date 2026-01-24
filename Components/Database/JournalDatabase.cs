@@ -37,7 +37,6 @@ namespace Dainiki.Components.Database
 
         public async Task<int> UpdateEntryAsync(EntriesModel entry)
         {
-            entry.UpdatedAt = DateTime.Now;
             return await _db.UpdateAsync(entry); 
         }
         public async Task<User?> GetUserByUsernameAsync(string username) =>
