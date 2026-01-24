@@ -1,7 +1,68 @@
 ﻿@page "/export"
+@using MudBlazor
 
-<h3>ExportJournal</h3>
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Export Journal</MudText>
+
+    <MudGrid>
+        <MudItem xs="12" md="7">
+            <MudPaper Class="pa-4 mb-4">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Select Date Range</MudText>
+                <MudDateRangePicker @bind-DateRange="DateRange" Class="mb-4" />
+
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by Mood (Optional)</MudText>
+                <MudChipSet T="string" MultiSelection="true">
+                    @foreach (var mood in MoodOptions)
+                    {
+                        <MudChip Text="@mood" Value="@mood" />
+                    }
+                </MudChipSet>
+
+                <MudDivider Class="my-4" />
+
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by Tags (Optional)</MudText>
+                <MudChipSet T="string" MultiSelection="true">
+                    @foreach (var tag in TagOptions)
+                    {
+                        <MudChip Text="@tag" Value="@tag" />
+                    }
+                </MudChipSet>
+
+                <MudDivider Class="my-4" />
+
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Include in Export</MudText>
+                <MudCheckBox T="bool" Label="Include mood data" Checked="true" Class="mb-2" />
+                <MudCheckBox T="bool" Label="Include tags" Checked="true" Class="mb-2" />
+                <MudCheckBox T="bool" Label="Include categories" Checked="true" />
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="5">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h6" Class="mb-2">Export Summary</MudText>
+                <MudText Typo="Typo.body1">Estimated Entries: <b>26</b></MudText>
+                <MudText Typo="Typo.body1">Format: <b>PDF</b></MudText>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Default" Class="mt-4">Export to PDF</MudButton>
+                <MudSpacer />
+                <MudText Typo="Typo.caption" Class="mt-2">
+                    Your journal entries will be exported as a formatted PDF document.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
+    private DateRange DateRange = new DateRange(DateTime.Today.AddDays(-30), DateTime.Today);
 
+    private List<string> MoodOptions = new()
+    {
+        "Happy", "Joyful", "Calm", "Stressed", "Anxious", "Motivated"
+    };
+
+    private List<string> TagOptions = new()
+    {
+        "#productivity", "#work", "#goals", "#reflection", "#planning", "#challenges"
+    };
 }
