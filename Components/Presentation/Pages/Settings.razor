@@ -1,7 +1,37 @@
 ﻿@page "/settings"
+@using MudBlazor
 
-<h3>Settings</h3>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Account Settings</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.subtitle1" Class="mb-2">Manage your account information</MudText>
+        <MudTextField Label="First Name" Variant="Variant.Outlined" @bind-Value="NameValue" Class="mb-4" />
+        <MudButton Variant="Variant.Filled" Color="Color.Default">Save Changes</MudButton>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.subtitle1" Class="mb-2">Appearance</MudText>
+        <MudText Typo="Typo.body2" Class="mb-2">Customize how Dainiki looks</MudText>
+        <MudSwitch T="bool" Label="Dark Mode" Checked="true" Color="Color.Primary" />
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.subtitle1" Class="mb-2">Privacy & Security</MudText>
+        <MudText Typo="Typo.body2" Class="mb-2">Manage your security settings</MudText>
+        <MudTextField T="String" Label="Current Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
+        <MudTextField T="String" Label="New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
+        <MudTextField T="String" Label="Confirm New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-4" />
+        <MudButton Variant="Variant.Filled" Color="Color.Default">Change Password</MudButton>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-4" Style="border: 1px solid red;">
+        <MudText Typo="Typo.subtitle1" Color="Color.Error" Class="mb-2">Danger Zone</MudText>
+        <MudText Typo="Typo.body2" Class="mb-4">Irreversible actions for your account</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Error">Delete Account Permanently</MudButton>
+    </MudPaper>
+</MudContainer>
 
 @code {
-
+    private string NameValue { get; set; } = "Saroj";
 }
