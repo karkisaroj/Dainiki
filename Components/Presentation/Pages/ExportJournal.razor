@@ -1,5 +1,10 @@
 ﻿@page "/export"
 @using MudBlazor
+@using Dainiki.Components.Models
+@inject PdfExportService PdfService
+@inject EntityService Entities
+@inject AuthService Auth
+@inject IJSRuntime JS
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudText Typo="Typo.h4" Class="mb-4">Export Journal</MudText>
@@ -8,61 +13,139 @@
         <MudItem xs="12" md="7">
             <MudPaper Class="pa-4 mb-4">
                 <MudText Typo="Typo.subtitle1" Class="mb-2">Select Date Range</MudText>
-                <MudDateRangePicker @bind-DateRange="DateRange" Class="mb-4" />
+                <MudDateRangePicker DateRange="DateRange" DateRangeChanged="OnDateRangeChanged" Class="mb-4" />
 
                 <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by Mood (Optional)</MudText>
-                <MudChipSet T="string" MultiSelection="true">
+                <MudSelect T="string"
+                           Label="Select Moods"
+                           MultiSelection="true"
+                           SelectedValues="SelectedMoods"
+                           SelectedValuesChanged="OnSelectedMoodsChanged"
+                           Class="mb-4">
                     @foreach (var mood in MoodOptions)
                     {
-                        <MudChip Text="@mood" Value="@mood" />
+                        <MudSelectItem Value="@mood">@mood</MudSelectItem>
                     }
-                </MudChipSet>
+                </MudSelect>
 
                 <MudDivider Class="my-4" />
 
                 <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by Tags (Optional)</MudText>
-                <MudChipSet T="string" MultiSelection="true">
+                <MudSelect T="string"
+                           Label="Select Tags"
+                           MultiSelection="true"
+                           SelectedValues="SelectedTags"
+                           SelectedValuesChanged="OnSelectedTagsChanged"
+                           Class="mb-4">
                     @foreach (var tag in TagOptions)
                     {
-                        <MudChip Text="@tag" Value="@tag" />
+                        <MudSelectItem Value="@tag">@tag</MudSelectItem>
                     }
-                </MudChipSet>
+                </MudSelect>
 
                 <MudDivider Class="my-4" />
 
                 <MudText Typo="Typo.subtitle1" Class="mb-2">Include in Export</MudText>
-                <MudCheckBox T="bool" Label="Include mood data" Checked="true" Class="mb-2" />
-                <MudCheckBox T="bool" Label="Include tags" Checked="true" Class="mb-2" />
-                <MudCheckBox T="bool" Label="Include categories" Checked="true" />
+                <MudCheckBox T="bool" Label="Include mood data" @bind-Checked="IncludeMood" Class="mb-2" />
+                <MudCheckBox T="bool" Label="Include tags" @bind-Checked="IncludeTags" Class="mb-2" />
+                <MudCheckBox T="bool" Label="Include categories" @bind-Checked="IncludeCategories" />
             </MudPaper>
         </MudItem>
 
         <MudItem xs="12" md="5">
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.h6" Class="mb-2">Export Summary</MudText>
-                <MudText Typo="Typo.body1">Estimated Entries: <b>26</b></MudText>
+                <MudText Typo="Typo.body1">Estimated Entries: <b>@FilteredCount</b></MudText>
                 <MudText Typo="Typo.body1">Format: <b>PDF</b></MudText>
 
-                <MudButton Variant="Variant.Filled" Color="Color.Default" Class="mt-4">Export to PDF</MudButton>
-                <MudSpacer />
-                <MudText Typo="Typo.caption" Class="mt-2">
-                    Your journal entries will be exported as a formatted PDF document.
-                </MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="ExportToPdf">
+                    Export to PDF
+                </MudButton>
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    private DateRange DateRange = new DateRange(DateTime.Today.AddDays(-30), DateTime.Today);
+    private DateRange DateRange = new(DateTime.Today.AddDays(-30), DateTime.Today);
+    private List<string> SelectedMoods = new();
+    private List<string> SelectedTags = new();
+    private bool IncludeMood = true;
+    private bool IncludeTags = true;
+    private bool IncludeCategories = true;
+    private int FilteredCount = 0;
 
-    private List<string> MoodOptions = new()
-    {
-        "Happy", "Joyful", "Calm", "Stressed", "Anxious", "Motivated"
-    };
+    private readonly List<string> MoodOptions = new() { "Happy", "Joyful", "Calm", "Stressed", "Anxious", "Motivated" };
+    private readonly List<string> TagOptions = new() { "#productivity", "#work", "#goals", "#reflection", "#planning", "#challenges" };
 
-    private List<string> TagOptions = new()
+    // Centralized filter logic
+    private async Task ApplyFilters()
     {
-        "#productivity", "#work", "#goals", "#reflection", "#planning", "#challenges"
-    };
+        if (!Auth.CurrentUserId.HasValue) return;
+
+        var entries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+
+        entries = entries.Where(e =>
+            e.Date >= DateRange.Start && e.Date <= DateRange.End &&
+            (!SelectedMoods.Any() || SelectedMoods.Contains(e.PrimaryMood)) &&
+            (!SelectedTags.Any() || SelectedTags.All(tag =>
+                (e.Tags ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim())
+                    .Contains(tag)))
+        ).ToList();
+
+        FilteredCount = entries.Count;
+        StateHasChanged(); // force UI refresh
+    }
+
+    // Event handlers that trigger ApplyFilters
+    private async void OnSelectedMoodsChanged(IEnumerable<string> values)
+    {
+        SelectedMoods = values.ToList();
+        await ApplyFilters();
+    }
+
+    private async void OnSelectedTagsChanged(IEnumerable<string> values)
+    {
+        SelectedTags = values.ToList();
+        await ApplyFilters();
+    }
+
+    private async void OnDateRangeChanged(DateRange range)
+    {
+        DateRange = range;
+        await ApplyFilters();
+    }
+
+    // Export button
+    private async Task ExportToPdf()
+    {
+        if (!Auth.CurrentUserId.HasValue) return;
+
+        var entries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+
+        entries = entries.Where(e =>
+            e.Date >= DateRange.Start && e.Date <= DateRange.End &&
+            (!SelectedMoods.Any() || SelectedMoods.Contains(e.PrimaryMood)) &&
+            (!SelectedTags.Any() || SelectedTags.All(tag =>
+                (e.Tags ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim())
+                    .Contains(tag)))
+        ).ToList();
+
+        FilteredCount = entries.Count;
+
+        var pdfBytes = PdfService.GenerateJournalPdf(entries, IncludeMood, IncludeTags, IncludeCategories);
+        var base64 = Convert.ToBase64String(pdfBytes);
+
+        await JS.InvokeVoidAsync("saveFile", "journal-export.pdf", base64);
+    }
+
+    // Initialize filter count when page loads
+    protected override async Task OnInitializedAsync()
+    {
+        await ApplyFilters();
+    }
 }
