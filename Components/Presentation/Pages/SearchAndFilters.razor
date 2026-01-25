@@ -3,6 +3,7 @@
 @using MudBlazor
 @inject AuthService Auth
 @inject EntityService Entities
+@using Dainiki.Components.Shared.Constants
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudText Typo="Typo.h4" Class="mb-4">Search & Filter</MudText>
@@ -85,10 +86,7 @@
 
     private List<string> SelectedTags = new();
 
-    private readonly List<string> MoodOptions = new()
-    {
-        "Happy", "Sad", "Excited", "Calm", "Stressed"
-    };
+    private readonly List<string> MoodOptions = EntryOptions.PrimaryMoods;
 
     private List<string> AvailableTags = new();
 

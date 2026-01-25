@@ -1,6 +1,7 @@
 ﻿@page "/addentry/{id:int?}"
 @using Dainiki.Components.Application.Services
 @using Dainiki.Components.Models
+@using Dainiki.Components.Shared.Constants
 @using MudBlazor
 @inject IJSRuntime JS
 @inject AuthService Auth
@@ -142,14 +143,10 @@
     private string Tags = "";
     private List<string>? PreDefinedTags = new();
 
-    private List<string> PrimaryMoods = ["Happy", "Sad", "Calm", "Angry", "Excited"];
-    private List<string> SecondaryMoodOptions = ["Work", "Health", "Travel", "Relationships", "Study"];
-    private List<string> LifePhases = ["School life", "College life", "Work life", "Family life"];
-    private List<string>? PreDefinedTagsOptions = ["Work", "Career", "Studies", "Family", "Friends", "Relationships",
-    "Health", "Fitness", "Personal Growth", "Self","care", "Hobbies", "Travel", "Nature",
-    "Finance", "Spirituality", "Birthday", "Holiday", "Vacation", "Celebration", "Exercise",
-    "Reading", "Writing", "Cooking", "Meditation", "Yoga", "Music", "Shopping", "Parenting",
-    "Projects", "Planning", "Reflection"];
+    private List<string> PrimaryMoods = EntryOptions.PrimaryMoods;
+    private List<string> SecondaryMoodOptions = EntryOptions.SecondaryMoodOptions;
+    private List<string> LifePhases = EntryOptions.LifePhases;
+    private List<string> PreDefinedTagsOptions = EntryOptions.PreDefinedTagsOptions;
 
     protected override async Task OnInitializedAsync()
     {
