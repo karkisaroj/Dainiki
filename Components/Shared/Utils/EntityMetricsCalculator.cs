@@ -1,11 +1,11 @@
-﻿using Dainiki.Components.Models;
+﻿using Dainiki.Components.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dainiki.Components.Utils
+namespace Dainiki.Components.Shared.Utils
 {
     public class EntityMetricsCalculator
     {

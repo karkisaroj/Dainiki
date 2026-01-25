@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dainiki.Components.Models
+namespace Dainiki.Components.Domain.Models
 {
     public class EntityMetrics
     {

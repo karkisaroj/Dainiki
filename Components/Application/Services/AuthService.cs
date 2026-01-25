@@ -1,5 +1,5 @@
 ﻿using System;
-using Dainiki.Components.Models;
+using Dainiki.Components.Domain.Models;
 using Dainiki.Components.Database;
 using System.Threading.Tasks;
 namespace Dainiki.Components.Application.Services
@@ -9,7 +9,8 @@ namespace Dainiki.Components.Application.Services
         private readonly JournalDatabase _db = db;
         public event Action? OnChange;
         public bool IsLoggedIn { get; private set; } = false;
-        public string? CurrentUser { get; private set; }
+        public string?CurrentUser { get; private set; }
+        public string? CurrentUserName { get; set; }
         public int? CurrentUserId { get; private set; }
         public bool IsDarkMode { get; set; }
         public async Task<bool> Register(RegisterModel model)
@@ -38,6 +39,7 @@ namespace Dainiki.Components.Application.Services
             IsLoggedIn = true;
             CurrentUser = username;
             CurrentUserId = user.Id;
+            CurrentUserName = user.FirstName;
             IsDarkMode = user.IsDarkMode;
             NotifyStateChanged();  
 
@@ -62,6 +64,7 @@ namespace Dainiki.Components.Application.Services
             IsLoggedIn = false;
             CurrentUser = null;
             CurrentUserId = null;
+            CurrentUserName = null;
             NotifyStateChanged();
         }
     }

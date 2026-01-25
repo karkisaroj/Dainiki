@@ -1,9 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @using Dainiki.Components.Application.Services
-@using Dainiki.Components.Models
+@using Dainiki.Components.Domain.Models
 @using MudBlazor
 @using Dainiki.Components.Shared.Theme
+@using Dainiki.Components.Database
 @inject AuthService Auth
+@inject JournalDatabase Db
 @implements IDisposable
 
 <MudThemeProvider Theme="_theme" @bind-IsDarkMode="_isDarkMode" />
@@ -34,7 +36,7 @@
                        ValueChanged="OnDarkModeChanged"
                        Color="Color.Primary"
                        ThumbIcon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)" />
-    </MudAppBar>
+        </MudAppBar>
 
         <MudDrawer @bind-Open="_drawerOpen"
                    Variant="DrawerVariant.Responsive"
@@ -43,7 +45,7 @@
                    Style="border-right:1px solid var(--mud-palette-divider);">
             <NavMenu />
         </MudDrawer>
-        }
+    }
     else
     {
         <MudAppBar Elevation="1" Dense Class="px-4">
@@ -56,9 +58,9 @@
             <MudSwitch T="bool"
                        @bind-Value="_isDarkMode"
                        Color="Color.Primary"
-                       ThumbIcon="@(_isDarkMode? Icons.Material.Filled.DarkMode: Icons.Material.Filled.LightMode)" />
-    </MudAppBar>
-        }
+                       ThumbIcon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)" />
+        </MudAppBar>
+    }
 
     <MudMainContent Class="pt-16 pa-4">
         @Body
@@ -71,10 +73,22 @@
     private bool _drawerOpen = true;
     private bool _isDarkMode;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Auth.OnChange += StateHasChanged;
+
+        // Load dark mode from Auth or DB
         _isDarkMode = Auth.IsDarkMode;
+
+        if (Auth.IsLoggedIn && Auth.CurrentUserId.HasValue)
+        {
+            var user = await Db.GetUserByUsernameAsync(Auth.CurrentUser!);
+            if (user != null)
+            {
+                _isDarkMode = user.IsDarkMode;
+                Auth.IsDarkMode = user.IsDarkMode;
+            }
+        }
     }
 
     private void ToggleDrawer()
@@ -87,10 +101,17 @@
         Auth.OnChange -= StateHasChanged;
         Auth.IsDarkMode = _isDarkMode;
     }
+
     private async Task OnDarkModeChanged(bool value)
     {
         _isDarkMode = value;
+        Auth.IsDarkMode = value;
+
+        if (Auth.IsLoggedIn && Auth.CurrentUserId.HasValue)
+        {
+            await Db.UpdateUserThemePreferenceAsync(Auth.CurrentUserId.Value, value);
+        }
+
         await Auth.UpdateThemePreferenceAsync(value);
     }
-
 }

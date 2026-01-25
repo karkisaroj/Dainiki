@@ -1,6 +1,6 @@
 ﻿using Dainiki.Components.Application.Services;
 using Dainiki.Components.Database;
-using Dainiki.Components.Utils;
+using Dainiki.Components.Shared.Utils;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 

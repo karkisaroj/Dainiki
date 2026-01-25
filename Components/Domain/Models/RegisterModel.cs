@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Dainiki.Components.Models
+namespace Dainiki.Components.Domain.Models
 {
     public class RegisterModel
     {

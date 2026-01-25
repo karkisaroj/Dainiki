@@ -1,30 +1,41 @@
 ﻿@page "/settings"
+@using Dainiki.Components.Domain.Models
 @using MudBlazor
+@using Dainiki.Components.Database
+@inject JournalDatabase Db
+@inject AuthService Auth
+@inject ISnackbar snackbar
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
     <MudText Typo="Typo.h4" Class="mb-4">Account Settings</MudText>
 
+    <!-- Account Info -->
     <MudPaper Class="pa-4 mb-4">
         <MudText Typo="Typo.subtitle1" Class="mb-2">Manage your account information</MudText>
-        <MudTextField Label="First Name" Variant="Variant.Outlined" @bind-Value="NameValue" Class="mb-4" />
-        <MudButton Variant="Variant.Filled" Color="Color.Default">Save Changes</MudButton>
+        <MudTextField T="string" Label="@CurrentUserName" Variant="Variant.Outlined" @bind-Value="@NewName" Class="mb-4" />
+        <MudButton Variant="Variant.Filled" OnClick="@SaveName" Color="Color.Default">Save Changes</MudButton>
     </MudPaper>
 
+    <!-- Appearance -->
     <MudPaper Class="pa-4 mb-4">
         <MudText Typo="Typo.subtitle1" Class="mb-2">Appearance</MudText>
         <MudText Typo="Typo.body2" Class="mb-2">Customize how Dainiki looks</MudText>
-        <MudSwitch T="bool" Label="Dark Mode" Checked="true" Color="Color.Primary" />
+        <MudSwitch T="bool" Label="Dark Mode" @bind-Checked="IsDarkMode" Color="Color.Primary" />
+        <MudButton Variant="Variant.Filled" Color="Color.Default" Class="mt-2" OnClick="SaveThemePreference">
+            Save Theme
+        </MudButton>
     </MudPaper>
 
+    <!-- Privacy & Security -->
     <MudPaper Class="pa-4 mb-4">
         <MudText Typo="Typo.subtitle1" Class="mb-2">Privacy & Security</MudText>
-        <MudText Typo="Typo.body2" Class="mb-2">Manage your security settings</MudText>
-        <MudTextField T="String" Label="Current Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
-        <MudTextField T="String" Label="New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
-        <MudTextField T="String" Label="Confirm New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-4" />
+        <MudTextField T="string" Label="Current Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
+        <MudTextField T="string" Label="New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
+        <MudTextField T="string" Label="Confirm New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-4" />
         <MudButton Variant="Variant.Filled" Color="Color.Default">Change Password</MudButton>
     </MudPaper>
 
+    <!-- Danger Zone -->
     <MudPaper Class="pa-4 mb-4" Style="border: 1px solid red;">
         <MudText Typo="Typo.subtitle1" Color="Color.Error" Class="mb-2">Danger Zone</MudText>
         <MudText Typo="Typo.body2" Class="mb-4">Irreversible actions for your account</MudText>
@@ -33,5 +44,39 @@
 </MudContainer>
 
 @code {
-    private string NameValue { get; set; } = "Saroj";
+
+    private bool IsDarkMode { get; set; } = false;
+    private string CurrentUserName { get; set; } = "";
+    private string NewName { get; set; } = "";
+    private async Task SaveThemePreference()
+    {
+        if (Auth.CurrentUserId.HasValue)
+        {
+            await Db.UpdateUserThemePreferenceAsync(Auth.CurrentUserId.Value, IsDarkMode);
+
+        }
+    }
+    private async Task SaveName()
+    {
+        if(NewName is not null)
+        {
+            await Db.UpdateUserNameAsync(NewName, Auth.CurrentUserId);
+            snackbar.Add("Saved name successfully", Severity.Success);
+            
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Auth.CurrentUserId.HasValue)
+        {
+            var user = await Db.GetUserByUsernameAsync(Auth.CurrentUser!);
+            if (user != null)
+            {
+                IsDarkMode = user.IsDarkMode;
+                NewName = Auth.CurrentUserName!;
+            }
+        }
+    }
 }

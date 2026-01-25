@@ -1,4 +1,4 @@
-﻿using Dainiki.Components.Models;
+﻿using Dainiki.Components.Domain.Models;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using User = Dainiki.Components.Domain.Models.User;
 
 namespace Dainiki.Components.Database
 {
@@ -48,6 +49,18 @@ namespace Dainiki.Components.Database
         }
         public async Task<User?> GetUserByUsernameAsync(string username) =>
            await _db.Table<User>().FirstOrDefaultAsync(u => u.Username == username);
+
+        public async Task UpdateUserNameAsync(string FirstName,int ?userId)
+        {
+            var user = await _db.Table<User>().FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return;
+            }
+            user.FirstName = FirstName;
+            await _db.UpdateAsync(user);
+        }
+
         public async Task UpdateUserThemePreferenceAsync(int userId, bool isDarkMode)
         {
             var user = await _db.Table<User>().FirstOrDefaultAsync(u => u.Id == userId);
