@@ -1,20 +1,24 @@
 ﻿@page "/search"
+@using Dainiki.Components.Models
 @using MudBlazor
+@inject AuthService Auth
+@inject EntityService Entities
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudText Typo="Typo.h4" Class="mb-4">Search & Filter</MudText>
 
     <MudGrid>
+        <!-- FILTER PANEL -->
         <MudItem xs="12" md="4">
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.subtitle2" Class="mb-2">Search</MudText>
                 <MudTextField @bind-Value="SearchText" Placeholder="Search entries..." Variant="Variant.Outlined" Class="mb-4" />
 
                 <MudText Typo="Typo.subtitle2" Class="mb-2">Date Range</MudText>
-                <MudDateRangePicker @bind-DateRange="DateRange" Class="mb-4" />
+                <MudDateRangePicker @bind-DateRange="DateRange" Variant="Variant.Outlined" Class="mb-4" />
 
                 <MudText Typo="Typo.subtitle2" Class="mb-2">Mood</MudText>
-                <MudSelect T="string" @bind-Value="SelectedMood" Label="Select Mood" Class="mb-4">
+                <MudSelect T="string" @bind-Value="SelectedMood" Label="Select Mood" Variant="Variant.Outlined" Clearable="true" Class="mb-4">
                     @foreach (var mood in MoodOptions)
                     {
                         <MudSelectItem Value="@mood">@mood</MudSelectItem>
@@ -22,32 +26,51 @@
                 </MudSelect>
 
                 <MudText Typo="Typo.subtitle2" Class="mb-2">Tags</MudText>
-                <MudChipSet T="string" @bind-SelectedChips="SelectedTags" MultiSelection="true">
+                <MudSelect T="string"
+                           Label="Select Tags"
+                           Variant="Variant.Outlined"
+                           MultiSelection="true"
+                           SelectedValues="SelectedTags"
+                           SelectedValuesChanged="OnSelectedTagsChanged"
+                           Class="mb-4">
                     @foreach (var tag in AvailableTags)
                     {
-                        <MudChip Text="@tag" Value="@tag" />
+                        <MudSelectItem Value="@tag">@tag</MudSelectItem>
                     }
-                </MudChipSet>
+                </MudSelect>
 
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="ApplyFilters">Apply Filters</MudButton>
+                <MudText Typo="Typo.caption" Class="mt-2">
+                    Selected: @string.Join(", ", SelectedTags)
+                </MudText>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="ApplyFilters">
+                    Apply Filters
+                </MudButton>
+
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" Class="mt-2" OnClick="ClearFilters">
+                    Clear All
+                </MudButton>
             </MudPaper>
         </MudItem>
 
+        <!-- RESULTS -->
         <MudItem xs="12" md="8">
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.h6" Class="mb-4">Search Results (@FilteredEntries.Count)</MudText>
+
+                @if (!FilteredEntries.Any())
+                {
+                    <MudText Typo="Typo.caption">No entries found.</MudText>
+                }
 
                 @foreach (var entry in FilteredEntries)
                 {
                     <MudPaper Class="pa-3 mb-3" Elevation="1">
                         <MudText Typo="Typo.subtitle1">@entry.Title</MudText>
-                        <MudText Typo="Typo.caption">
-                            @entry.Date.ToString("ddd, MMM dd, yyyy")
-                            @entry.Date.Add(entry.Time).ToString("hh:mm tt")
-                        </MudText>
-                        <MudText Class="mt-2">@entry.Description</MudText>
-                        <MudText Typo="Typo.caption" Class="mt-1">Mood: @string.Join(", ", entry.Moods)</MudText>
-                        <MudText Typo="Typo.caption">Tags: @string.Join(" ", entry.Tags.Select(t => $"#{t}"))</MudText>
+                        <MudText Typo="Typo.caption">@entry.Date.ToString("ddd, MMM dd, yyyy")</MudText>
+                        <MudText Class="mt-2">@((MarkupString)entry.Content)</MudText>
+                        <MudText Typo="Typo.caption" Class="mt-1">Mood: @entry.PrimaryMood</MudText>
+                        <MudText Typo="Typo.caption">Tags: @entry.Tags</MudText>
                     </MudPaper>
                 }
             </MudPaper>
@@ -57,83 +80,70 @@
 
 @code {
     private string SearchText = string.Empty;
-    private DateRange DateRange = new DateRange(DateTime.Today.AddDays(-7), DateTime.Today);
+    private DateRange DateRange = new(DateTime.Today.AddDays(-7), DateTime.Today);
+    private string? SelectedMood;
 
-    // This is done to initialize to avoid non-nullable warning
-    private string SelectedMood = string.Empty;
+    private List<string> SelectedTags = new();
 
-    // Mood options list
     private readonly List<string> MoodOptions = new()
     {
         "Happy", "Sad", "Excited", "Calm", "Stressed"
     };
 
-    private HashSet<string> SelectedTags = new();
+    private List<string> AvailableTags = new();
 
-    private List<string> AvailableTags = new()
+
+    private List<EntriesModel> AllEntries = new();
+    private List<EntriesModel> FilteredEntries = new();
+
+    protected override async Task OnInitializedAsync()
     {
-        "productivity", "work", "goals", "reflection", "planning", "challenges", "stress",
-        "outdoor", "friends", "exercise", "learning", "programming", "morning", "meditation"
-    };
-
-    private List<JournalEntry> AllEntries = new()
-    {
-        new JournalEntry("A Productive Day", new DateTime(2026, 1, 17), new TimeSpan(10, 0, 0),
-            "Today was amazing! I accomplished all my goals and felt really positive about the progress I made on my project.",
-            new[] { "Happy", "Excited", "Motivated" }, new[] { "productivity", "work", "goals" }),
-
-        new JournalEntry("Quiet Reflection", new DateTime(2026, 1, 14), new TimeSpan(20, 15, 0),
-            "Spent the day thinking about my future goals. Not particularly exciting, but felt like a necessary pause.",
-            new[] { "Calm", "Thoughtful" }, new[] { "reflection", "planning" }),
-
-        new JournalEntry("Challenging Moments", new DateTime(2026, 1, 13), new TimeSpan(21, 0, 0),
-            "Had a tough day dealing with some unexpected setbacks. Feeling a bit overwhelmed but trying to stay positive.",
-            new[] { "Stressed", "Anxious", "Tired" }, new[] { "challenges", "stress" }),
-
-        new JournalEntry("Weekend Adventures", new DateTime(2026, 1, 12), new TimeSpan(18, 45, 0),
-            "", new[] { "Happy" }, new[] { "outdoor", "friends" })
-    };
-
-    private List<JournalEntry> FilteredEntries = new();
-
-    protected override void OnInitialized()
-    {
-        FilteredEntries = AllEntries;
+        if (Auth.CurrentUserId.HasValue)
+        {
+            AllEntries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+            FilteredEntries = AllEntries;
+            AvailableTags = AllEntries
+                .SelectMany(e => (e.Tags ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim()))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(t => t)
+                .ToList();
+        }
     }
 
     private void ApplyFilters()
     {
-        FilteredEntries = AllEntries
-            .Where(e =>
-                (string.IsNullOrWhiteSpace(SearchText) ||
-                 e.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                 e.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrWhiteSpace(SelectedMood) || e.Moods.Contains(SelectedMood)) &&
-                (SelectedTags.Count == 0 || SelectedTags.All(tag => e.Tags.Contains(tag))) &&
-                (DateRange.Start == null || DateRange.End == null ||
-                 (e.Date >= DateRange.Start && e.Date <= DateRange.End))
-            )
-            .ToList();
+        FilteredEntries = AllEntries.Where(e =>
+            (string.IsNullOrWhiteSpace(SearchText)
+                || e.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                || e.Content.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+
+            && (string.IsNullOrWhiteSpace(SelectedMood)
+                || e.PrimaryMood == SelectedMood)
+
+            && (!SelectedTags.Any() || SelectedTags.All(tag =>
+                (e.Tags ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim().ToLowerInvariant())
+                    .Contains(tag.ToLowerInvariant())))
+
+            && (DateRange.Start == null || DateRange.End == null ||
+                (e.Date >= DateRange.Start && e.Date <= DateRange.End))
+        ).ToList();
     }
 
-    public class JournalEntry
+    private void ClearFilters()
     {
-        public string Title { get; set; }
-        public DateTime Date { get; set; }
-        public TimeSpan Time { get; set; }
-        public string Description { get; set; }
-        public List<string> Moods { get; set; }
-        public List<string> Tags { get; set; }
+        SearchText = string.Empty;
+        SelectedMood = null;
+        SelectedTags.Clear();
+        DateRange = new DateRange(DateTime.Today.AddDays(-7), DateTime.Today);
+        FilteredEntries = AllEntries;
+    }
 
-        public JournalEntry(string title, DateTime date, TimeSpan time, string description,
-                            IEnumerable<string> moods, IEnumerable<string> tags)
-        {
-            Title = title;
-            Date = date;
-            Time = time;
-            Description = description;
-            Moods = moods.ToList();
-            Tags = tags.ToList();
-        }
+    private void OnSelectedTagsChanged(IEnumerable<string> selectedValues)
+    {
+        SelectedTags = selectedValues.ToList();
     }
 }
