@@ -1,5 +1,8 @@
 ﻿@page "/analytics"
 @using MudBlazor
+@using Dainiki.Components.Models
+@inject AuthService Auth
+@inject EntityService Entities
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudText Typo="Typo.h4" Class="mb-6">Analytics Dashboard</MudText>
@@ -8,29 +11,29 @@
         <MudItem xs="12" md="3">
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.subtitle2">Overall Mood</MudText>
-                <MudText Typo="Typo.h6">65% Positive</MudText>
-                <MudText Typo="Typo.caption">Most frequent: Happy</MudText>
+                <MudText Typo="Typo.h6">@($"{analytics.MoodData.FirstOrDefault(m => m.Mood == "Positive")?.Value}% Positive")</MudText>
+                <MudText Typo="Typo.caption">Most frequent: @analytics.MostFrequentMood</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" md="3">
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.subtitle2">Avg Word Count</MudText>
-                <MudText Typo="Typo.h6">420 words</MudText>
+                <MudText Typo="Typo.h6">@($"{analytics.AvgWordCount} words")</MudText>
                 <MudText Typo="Typo.caption">Per entry average</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" md="3">
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.subtitle2">Current Streak</MudText>
-                <MudText Typo="Typo.h6">5 days</MudText>
-                <MudText Typo="Typo.caption">Longest: 12 days</MudText>
+                <MudText Typo="Typo.h6">@($"{analytics.CurrentStreak} days")</MudText>
+                <MudText Typo="Typo.caption">Longest: @($"{analytics.LongestStreak} days")</MudText>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" md="3">
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.subtitle2">Top Tag</MudText>
-                <MudText Typo="Typo.h6">Work</MudText>
-                <MudText Typo="Typo.caption">Used 25 times</MudText>
+                <MudText Typo="Typo.h6">@analytics.TopTag</MudText>
+                <MudText Typo="Typo.caption">Used @analytics.TagData.FirstOrDefault(t => t.Tag == analytics.TopTag)?.Count times</MudText>
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -40,8 +43,8 @@
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.subtitle2">Mood Distribution</MudText>
                 <MudChart ChartType="ChartType.Pie"
-                          InputData="@MoodValues"
-                          InputLabels="@MoodLabels"
+                          InputData="@analytics.MoodData.Select(m => m.Value).ToArray()"
+                          InputLabels="@analytics.MoodData.Select(m => m.Mood).ToArray()"
                           Width="100%" Height="350px" />
             </MudPaper>
         </MudItem>
@@ -50,98 +53,116 @@
             <MudPaper Class="pa-4">
                 <MudText Typo="Typo.subtitle2">Entries Trend</MudText>
                 <MudChart ChartType="ChartType.Line"
-                          ChartSeries="@EntrySeries"
-                          XAxisLabels="@EntryLabels"
+                          ChartSeries="@entryTrendSeries"
+                          XAxisLabels="@analytics.EntryData.Select(e => e.Date).ToArray()"
                           Width="100%" Height="300px" />
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4">
-                <MudText Typo="Typo.subtitle2">Most Used Tags</MudText>
-                <MudChart ChartType="ChartType.Bar"
-                          ChartSeries="@TagSeries"
-                          XAxisLabels="@TagLabels"
-                          Width="100%" Height="300px" />
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" md="6">
-            <MudPaper Class="pa-4">
-                <MudText Typo="Typo.subtitle2">Tag Category Breakdown</MudText>
-                <MudChart ChartType="ChartType.Bar"
-                          ChartSeries="@CategorySeries"
-                          XAxisLabels="@CategoryLabels"
-                          Width="100%" Height="300px" />
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12">
-            <MudPaper Class="pa-4">
-                <MudText Typo="Typo.h5" Class="mb-2">Streak Tracking</MudText>
-                <MudText Typo="Typo.subtitle2" Class="mb-4">Your journaling consistency over the last 10 days</MudText>
-
-                <MudGrid Spacing="2">
-                    <MudItem xs="12" md="4">
-                        <MudPaper Elevation="0" Class="pa-2">
-                            <MudText Typo="Typo.subtitle2">Current Streak</MudText>
-                            <MudText Typo="Typo.h6" Color="Color.Primary">5 days</MudText>
-                        </MudPaper>
-                    </MudItem>
-                    <MudItem xs="12" md="4">
-                        <MudPaper Elevation="0" Class="pa-2">
-                            <MudText Typo="Typo.subtitle2">Longest Streak</MudText>
-                            <MudText Typo="Typo.h6" Color="Color.Secondary">12 days</MudText>
-                        </MudPaper>
-                    </MudItem>
-                    <MudItem xs="12" md="4">
-                        <MudPaper Elevation="0" Class="pa-2">
-                            <MudText Typo="Typo.subtitle2">Missed Days</MudText>
-                            <MudText Typo="Typo.h6" Color="Color.Error">2</MudText>
-                        </MudPaper>
-                    </MudItem>
-                </MudGrid>
-
-                <MudDivider Class="my-4" />
-
-                <MudText Typo="Typo.subtitle2" Class="mb-2">Entry Tracking (Last 10 Days)</MudText>
-                <MudChart ChartType="ChartType.Bar"
-                          ChartSeries="@StreakSeries"
-                          XAxisLabels="@EntryTrackingLabels"
-                          Width="100%" Height="400px" />
-
-                <MudText Typo="Typo.caption" Class="mt-2">Blue = Entry Made, Red = Missed</MudText>
             </MudPaper>
         </MudItem>
     </MudGrid>
+
+        <MudGrid Spacing="3">
+            <!-- Full-width Most Used Tags -->
+            <MudItem xs="12">
+                <MudPaper Class="pa-4">
+                    <MudText Typo="Typo.subtitle2">Most Used Tags</MudText>
+                    <MudChart ChartType="ChartType.Bar"
+                              ChartSeries="@tagSeries"
+                              XAxisLabels="@tagLabels"
+                              Width="100%" Height="400px" />
+                </MudPaper>
+            </MudItem>
+
+            <!-- Side-by-side: Tag Category Breakdown + Streak Tracking -->
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4">
+                    <MudText Typo="Typo.subtitle2">Tag Category Breakdown</MudText>
+                    <MudChart ChartType="ChartType.Bar"
+                              ChartSeries="@categorySeries"
+                              XAxisLabels="@analytics.CategoryData.Select(c => c.Category).ToArray()"
+                              Width="100%" Height="300px" />
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4">
+                    <MudText Typo="Typo.h5" Class="mb-2">Streak Tracking</MudText>
+                    <MudText Typo="Typo.subtitle2" Class="mb-4">Your journaling consistency over the last 10 days</MudText>
+
+                <MudGrid Spacing="2" Direction="Column">
+                    <MudItem xs="12">
+                        <MudPaper Elevation="0" Class="pa-2">
+                            <MudText Typo="Typo.subtitle2">Current Streak</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Primary">@($"{analytics.CurrentStreak} days")</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudPaper Elevation="0" Class="pa-2">
+                            <MudText Typo="Typo.subtitle2">Longest Streak</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Secondary">@($"{analytics.LongestStreak} days")</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudPaper Elevation="0" Class="pa-2">
+                            <MudText Typo="Typo.subtitle2">Missed Days</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Error">@analytics.MissedDays</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
 </MudContainer>
 
 @code {
-    private double[] MoodValues = { 65, 20, 15 };
-    private string[] MoodLabels = { "Positive", "Neutral", "Negative" };
+    private AnalyticsModel analytics = new();
+    private string[] tagLabels = Array.Empty<string>();
+    private List<ChartSeries> entryTrendSeries = new();
+    private List<ChartSeries> tagSeries = new();
+    private List<ChartSeries> categorySeries = new();
 
-    private List<ChartSeries> EntrySeries = new()
+    protected override async Task OnInitializedAsync()
     {
-        new ChartSeries() { Name = "Words", Data = new double[] { 300, 420, 390, 500, 600, 450, 470, 520 } }
-    };
-    private string[] EntryLabels = { "Jan 8", "Jan 9", "Jan 10", "Jan 11", "Jan 12", "Jan 13", "Jan 14", "Jan 15" };
+        if (Auth.CurrentUserId.HasValue)
+        {
+            analytics = await Entities.GetAnalyticsForUserAsync(Auth.CurrentUserId.Value);
 
-    private List<ChartSeries> TagSeries = new()
-    {
-        new ChartSeries() { Name = "Tags", Data = new double[] { 26, 18, 15, 11, 9, 8 } }
-    };
-    private string[] TagLabels = { "Work", "Health", "Travel", "Fitness", "Family", "Learning" };
+            // Build chart series responsive and more dynamic removing the static datas
+            entryTrendSeries = new List<ChartSeries>
+            {
+                new ChartSeries
+                {
+                    Name = "Words",
+                    Data = analytics.EntryData.Select(e => e.Words).ToArray()
+                }
+            };
 
-    private List<ChartSeries> CategorySeries = new()
-    {
-        new ChartSeries() { Name = "Categories", Data = new double[] { 34, 26, 20, 10, 7 } }
-    };
-    private string[] CategoryLabels = { "Work", "Personal", "Health", "Learning", "Other" };
+            tagSeries = new List<ChartSeries>
+            {
+                new ChartSeries
+                {
+                    Name = "Tags",
+                    Data = analytics.TagData
+                        .OrderByDescending(t => t.Count)
+                        .Take(10)
+                        .Select(t => t.Count)
+                        .ToArray()
+                }
+            };
 
-    private List<ChartSeries> StreakSeries = new()
-    {
-        new ChartSeries() { Name = "Entry Made", Data = new double[] { 20, 18, 22, 0, 25, 30, 28, 0, 24, 26 }},
-        new ChartSeries() { Name = "Missed", Data = new double[] { 0, 0, 0, 15, 0, 0, 0, 12, 0, 0 } }
-    };
-    private string[] EntryTrackingLabels = { "Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7", "Day 8", "Day 9", "Day 10" };
+            tagLabels = analytics.TagData
+                .OrderByDescending(t => t.Count)
+                .Take(10)
+                .Select(t => t.Tag)
+                .ToArray();
+
+            categorySeries = new List<ChartSeries>
+            {
+                new ChartSeries
+                {
+                    Name = "Categories",
+                    Data = analytics.CategoryData.Select(c => c.Count).ToArray()
+                }
+            };
+        }
+    }
 }

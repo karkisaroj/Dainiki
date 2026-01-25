@@ -45,6 +45,11 @@ namespace Dainiki.Components.Application.Services
             }
            
         }
+        public async Task<AnalyticsModel> GetAnalyticsForUserAsync(int userId)
+        {
+            return await _db.GetAnalyticsForUserAsync(userId);
+        }
+
         public Task<int> DeleteEntryAsync(int id) => _db.DeleteEntryAsync(id);
     }
 }
