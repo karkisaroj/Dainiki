@@ -24,7 +24,9 @@ namespace Dainiki.Components.Application.Services
             {
                 FirstName = model.FirstName,
                 Username = model.Username,
-                Password = model.Password
+                Password = model.Password,
+                IsDarkMode = false
+
             };
             await _db.RegisterUser(user);
             return true;
@@ -46,7 +48,7 @@ namespace Dainiki.Components.Application.Services
             return true;
         }
 
-        private void NotifyStateChanged() => OnChange?.Invoke();
+        public void NotifyStateChanged() => OnChange?.Invoke();
 
         public async Task UpdateThemePreferenceAsync(bool isDarkMode)
         {
@@ -57,8 +59,27 @@ namespace Dainiki.Components.Application.Services
                 NotifyStateChanged();
             }
         }
+        public async Task<bool> UpdateUserPasswordAsync(ResetPasswordModel model)
+        {
+            if (!CurrentUserId.HasValue) return false;
 
-       
+            var user = await _db.GetUserByIdAsync(CurrentUserId.Value);
+            if (user == null) return false;
+
+            // Validate current password
+            if (user.Password != model.CurrentPassword) return false;
+
+            // Validate new password confirmation
+            if (model.NewPassword != model.ConfirmPassword) return false;
+
+            // Update in DB
+            await _db.UpdateUserPasswordAsync(CurrentUserId.Value, model.NewPassword);
+            return true;
+        }
+
+
+
+
         public void Logout()
         {
             IsLoggedIn = false;

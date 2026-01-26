@@ -14,7 +14,7 @@ namespace Dainiki.Components.Application.Services
 
         private static string StripHtml(string html) => HtmlTagRegex().Replace(html, string.Empty);
 
-        public byte[] GenerateJournalPdf(List<EntriesModel> entries, bool includeMood, bool includeTags, bool includeCategories)
+        public static byte[] GenerateJournalPdf(List<EntriesModel> entries, bool includeMood, bool includeTags, bool includeCategories)
         {
             using var doc = new PdfDocument();
             var page = doc.AddPage();

@@ -14,7 +14,6 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-
     @if (Auth.IsLoggedIn)
     {
         <MudAppBar Elevation="1" Dense Class="px-4"
@@ -65,7 +64,6 @@
     <MudMainContent Class="pt-16 pa-4">
         @Body
     </MudMainContent>
-
 </MudLayout>
 
 @code {
@@ -113,5 +111,6 @@
         }
 
         await Auth.UpdateThemePreferenceAsync(value);
+        Auth.NotifyStateChanged();
     }
 }

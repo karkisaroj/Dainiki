@@ -43,6 +43,21 @@ namespace Dainiki.Components.Database
                 .FirstOrDefaultAsync(e => e.UserId == userId && e.Date == date);
         }
 
+        public async Task<User?> GetUserByIdAsync(int id)
+        {
+            return await _db.Table<User>().FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task UpdateUserPasswordAsync(int userId, string newPassword)
+        {
+            var user = await GetUserByIdAsync(userId);
+            if (user != null)
+            {
+                user.Password = newPassword;
+                await _db.UpdateAsync(user);
+            }
+        }
+
         public async Task<int> UpdateEntryAsync(EntriesModel entry)
         {
             return await _db.UpdateAsync(entry); 

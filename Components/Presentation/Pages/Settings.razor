@@ -7,32 +7,20 @@
 @inject ISnackbar snackbar
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
-    <MudText Typo="Typo.h4" Class="mb-4">Account Settings</MudText>
 
-    <!-- Account Info -->
+    <!-- User Info -->
     <MudPaper Class="pa-4 mb-4">
-        <MudText Typo="Typo.subtitle1" Class="mb-2">Manage your account information</MudText>
-        <MudTextField T="string" Label="@CurrentUserName" Variant="Variant.Outlined" @bind-Value="@NewName" Class="mb-4" />
-        <MudButton Variant="Variant.Filled" OnClick="@SaveName" Color="Color.Default">Save Changes</MudButton>
-    </MudPaper>
-
-    <!-- Appearance -->
-    <MudPaper Class="pa-4 mb-4">
-        <MudText Typo="Typo.subtitle1" Class="mb-2">Appearance</MudText>
-        <MudText Typo="Typo.body2" Class="mb-2">Customize how Dainiki looks</MudText>
-        <MudSwitch T="bool" Label="Dark Mode" @bind-Checked="IsDarkMode" Color="Color.Primary" />
-        <MudButton Variant="Variant.Filled" Color="Color.Default" Class="mt-2" OnClick="SaveThemePreference">
-            Save Theme
-        </MudButton>
+        <MudText Typo="Typo.subtitle1" Class="mb-2">Account Info</MudText>
+        <MudText Typo="Typo.body2">Logged in as: <b>@FirstName</b></MudText>
     </MudPaper>
 
     <!-- Privacy & Security -->
     <MudPaper Class="pa-4 mb-4">
-        <MudText Typo="Typo.subtitle1" Class="mb-2">Privacy & Security</MudText>
-        <MudTextField T="string" Label="Current Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
-        <MudTextField T="string" Label="New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-2" />
-        <MudTextField T="string" Label="Confirm New Password" Variant="Variant.Outlined" InputType="InputType.Password" Class="mb-4" />
-        <MudButton Variant="Variant.Filled" Color="Color.Default">Change Password</MudButton>
+        <MudTextField T="string" Label="Current Password" InputType="InputType.Password" @bind-Value="resetModel.CurrentPassword" />
+        <MudTextField T="string" Label="New Password" InputType="InputType.Password" @bind-Value="resetModel.NewPassword" />
+        <MudTextField T="string" Label="Confirm New Password" InputType="InputType.Password" @bind-Value="resetModel.ConfirmPassword" />
+        <MudButton OnClick="ChangePassword">Change Password</MudButton>
+
     </MudPaper>
 
     <!-- Danger Zone -->
@@ -44,39 +32,31 @@
 </MudContainer>
 
 @code {
+    private string FirstName { get; set; } = "";
+    private User? user;
+    private ResetPasswordModel resetModel = new();
 
-    private bool IsDarkMode { get; set; } = false;
-    private string CurrentUserName { get; set; } = "";
-    private string NewName { get; set; } = "";
-    private async Task SaveThemePreference()
-    {
-        if (Auth.CurrentUserId.HasValue)
-        {
-            await Db.UpdateUserThemePreferenceAsync(Auth.CurrentUserId.Value, IsDarkMode);
-
-        }
-    }
-    private async Task SaveName()
-    {
-        if(NewName is not null)
-        {
-            await Db.UpdateUserNameAsync(NewName, Auth.CurrentUserId);
-            snackbar.Add("Saved name successfully", Severity.Success);
-            
-        }
-    }
-
+    private string CurrentPassword { get; set; } = "";
+    private string NewPassword { get; set; } = "";
+    private string ConfirmPassword { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
         if (Auth.CurrentUserId.HasValue)
         {
-            var user = await Db.GetUserByUsernameAsync(Auth.CurrentUser!);
+            user = await Db.GetUserByUsernameAsync(Auth.CurrentUser!);
             if (user != null)
             {
-                IsDarkMode = user.IsDarkMode;
-                NewName = Auth.CurrentUserName!;
+                FirstName = user.FirstName;
             }
         }
     }
+
+    private async Task ChangePassword()
+    {
+        var success = await Auth.UpdateUserPasswordAsync(resetModel);
+        snackbar.Add(success ? "Password updated successfully" : "Password update failed",
+                     success ? Severity.Success : Severity.Error);
+    }
+
 }
