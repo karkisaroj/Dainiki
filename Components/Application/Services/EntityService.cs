@@ -1,5 +1,6 @@
 ﻿using Dainiki.Components.Database;
 using Dainiki.Components.Domain.Models;
+using Dainiki.Components.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,29 @@ namespace Dainiki.Components.Application.Services
         }
         public async Task<AnalyticsModel> GetAnalyticsForUserAsync(int userId)
         {
-            return await db.GetAnalyticsForUserAsync(userId);
+            var analytics = await db.GetAnalyticsForUserAsync(userId);
+
+            // Normalize MoodData into Positive / Neutral / Negative
+            var groupedMoods = analytics.EntryData
+            .GroupBy(e => MoodCategoryMap.GetCategory(e.Mood))
+            .Select(g => new MoodInfo
+            {
+                Mood = g.Key,
+                Value = g.Count()
+            })
+            .ToList();
+
+
+            var allCategories = new[] { "Positive", "Neutral", "Negative" };
+            foreach (var category in allCategories)
+            {
+                if (!groupedMoods.Any(m => m.Mood == category))
+                    groupedMoods.Add(new MoodInfo { Mood = category, Value = 0 });
+            }
+
+            analytics.MoodData = groupedMoods;
+
+            return analytics;
         }
 
         public Task<int> DeleteEntryAsync(int id) => db.DeleteEntryAsync(id);

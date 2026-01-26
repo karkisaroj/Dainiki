@@ -31,5 +31,6 @@ namespace Dainiki.Components.Shared.Constants
         "Reading", "Writing", "Cooking", "Meditation", "Yoga", "Music", "Shopping", "Parenting",
         "Projects", "Planning", "Reflection"
     ];
+
     }
 }

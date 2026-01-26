@@ -57,12 +57,14 @@ namespace Dainiki.Components.Domain.Models
     {
         public string Mood { get; set; } = string.Empty;
         public double Value { get; set; } = 0;
+
     }
 
     public class EntryInfo
     {
         public string Date { get; set; } = string.Empty;
         public double Words { get; set; } = 0;
+        public string Mood { get; set; } = string.Empty;
     }
 
     public class TagInfo

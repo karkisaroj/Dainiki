@@ -70,6 +70,7 @@ namespace Dainiki.Components.Database
                 await _db.UpdateAsync(user);
             }
         }
+        
         public async Task<List<EntriesModel>> GetEntriesByUserAsync(int UserId)
         {
             return await _db.Table<EntriesModel>().Where(e => e.UserId == UserId).ToListAsync();
@@ -89,18 +90,19 @@ namespace Dainiki.Components.Database
             var model = new AnalyticsModel
             {
                 // Entry data (word counts per day)
-                EntryData = entries.Select(e => new EntryInfo
+                EntryData = [.. entries.Select(e => new EntryInfo
                 {
                     Date = e.Date.ToString("MMM dd"),
-                    Words = string.IsNullOrWhiteSpace(e.Content) ? 0 : e.Content.Split(' ').Length
-                }).ToList(),
+                    Words = string.IsNullOrWhiteSpace(e.Content) ? 0 : e.Content.Split(' ').Length,
+                    Mood = e.PrimaryMood 
+                })],
 
                 // Mood distribution (categorize moods into Positive, Neutral, Negative)
                 MoodData = new List<MoodInfo>
                 {
-                new MoodInfo { Mood = "Positive", Value = entries.Count(e => e.PrimaryMood == "Happy" || e.PrimaryMood == "Excited" || e.PrimaryMood == "Calm") },
-                new MoodInfo { Mood = "Neutral", Value = entries.Count(e => e.PrimaryMood == "Reflective" || e.PrimaryMood == "Tired") },
-                new MoodInfo { Mood = "Negative", Value = entries.Count(e => e.PrimaryMood == "Sad" || e.PrimaryMood == "Angry" || e.PrimaryMood == "Stressed") }
+                new() { Mood = "Positive", Value = entries.Count(e => e.PrimaryMood == "Happy" || e.PrimaryMood == "Excited" || e.PrimaryMood == "Calm") },
+                new() { Mood = "Neutral", Value = entries.Count(e => e.PrimaryMood == "Reflective" || e.PrimaryMood == "Tired") },
+                new() { Mood = "Negative", Value = entries.Count(e => e.PrimaryMood == "Sad" || e.PrimaryMood == "Angry" || e.PrimaryMood == "Stressed") }
                 },
 
                 // Tags (split by commas and count frequency)

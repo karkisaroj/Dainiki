@@ -9,7 +9,6 @@ namespace Dainiki.Components.Application.Services
 {
     public partial class PdfExportService
     {
-        // ✅ Fix SYSLIB1006: Use compile-time regex without accessibility modifier
         [GeneratedRegex("<.*?>")]
         internal static partial Regex HtmlTagRegex();
 
@@ -67,7 +66,7 @@ namespace Dainiki.Components.Application.Services
 
                 y += 20;
 
-                // Add new page if needed
+                // If new pages are added this will be used
                 if (y > page.Height - 60)
                 {
                     page = doc.AddPage();

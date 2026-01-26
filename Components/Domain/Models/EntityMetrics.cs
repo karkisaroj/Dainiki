@@ -12,5 +12,6 @@ namespace Dainiki.Components.Domain.Models
         public int EntriesThisWeek { get; set; }
         public int TotalEntriesThisMonth { get;set;}
         public int CurrentStreakDays { get; set; }
+        public int LongestStreakDays { get; set; }
     }
 }
