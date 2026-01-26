@@ -17,23 +17,23 @@
                               Label="Search"
                               Placeholder="Search entries..."
                               Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
+                              Margin="Margin.Normal"
                               FullWidth
                               Class="mb-4" />
 
                 <MudDateRangePicker @bind-DateRange="DateRange"
                                     Label="Date Range"
                                     Variant="Variant.Outlined"
-                                    Margin="Margin.Dense"
+                                    Margin="Margin.Normal"
                                     FullWidth
-                                    Class="mb-4" />
-
+                                    Class="mb-2" />
+                                        
                 <MudSelect T="string"
                            @bind-Value="SelectedMood"
                            Label="Mood"
                            Variant="Variant.Outlined"
                            Clearable="true"
-                           Margin="Margin.Dense"
+                           Margin="Margin.None"
                            FullWidth
                            Class="mb-4">
                     @foreach (var mood in MoodOptions)
@@ -48,7 +48,7 @@
                            MultiSelection="true"
                            SelectedValues="SelectedTags"
                            SelectedValuesChanged="OnSelectedTagsChanged"
-                           Margin="Margin.Dense"
+                           Margin="Margin.None"
                            FullWidth
                            Class="mb-4">
                     @foreach (var tag in AvailableTags)
@@ -60,7 +60,7 @@
 
                 <MudStack Spacing="2">
                     <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
+                               Color="Color.Default"
                                FullWidth
                                OnClick="ApplyFilters">
                         Apply Filters
@@ -94,6 +94,7 @@
                     <MudCard Class="mb-4" Elevation="2">
                         <MudCardHeader>
                             <MudText Typo="Typo.subtitle1" Class="font-weight-bold">@entry.Title</MudText>
+                            <MudSpacer/>
                             <MudText Typo="Typo.caption" Class="text-secondary">
                                 @entry.Date.ToString("ddd, MMM dd, yyyy")
                             </MudText>
