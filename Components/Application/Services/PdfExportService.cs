@@ -26,7 +26,7 @@ namespace Dainiki.Components.Application.Services
             foreach (var entry in entries)
             {
                 // Title + Date
-                gfx.DrawString($"{entry.Date:MMM dd, yyyy} - {entry.Title ?? "(Untitled)"}",
+                gfx.DrawString($"{entry.Date:MMM dd, yyyy} -\n {entry.Title ?? "(Untitled)"}",
                     font, XBrushes.Black, new XPoint(40, y));
                 y += 20;
 

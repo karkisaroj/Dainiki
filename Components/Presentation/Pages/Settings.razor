@@ -5,29 +5,68 @@
 @inject JournalDatabase Db
 @inject AuthService Auth
 @inject ISnackbar snackbar
+@inject NavigationManager Nav
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
 
     <!-- User Info -->
-    <MudPaper Class="pa-4 mb-4">
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
         <MudText Typo="Typo.subtitle1" Class="mb-2">Account Info</MudText>
-        <MudText Typo="Typo.body2">Logged in as: <b>@FirstName</b></MudText>
+        <MudText Typo="Typo.body2">Logged in as: <h2>@FirstName</h2></MudText>
     </MudPaper>
 
     <!-- Privacy & Security -->
-    <MudPaper Class="pa-4 mb-4">
-        <MudTextField T="string" Label="Current Password" InputType="InputType.Password" @bind-Value="resetModel.CurrentPassword" />
-        <MudTextField T="string" Label="New Password" InputType="InputType.Password" @bind-Value="resetModel.NewPassword" />
-        <MudTextField T="string" Label="Confirm New Password" InputType="InputType.Password" @bind-Value="resetModel.ConfirmPassword" />
-        <MudButton OnClick="ChangePassword">Change Password</MudButton>
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.subtitle1" Class="mb-2">Change Password</MudText>
 
+        <MudForm @ref="form">
+            <MudTextField T="string"
+                          Label="Current Password"
+                          InputType="InputType.Password"
+                          @bind-Value="resetModel.CurrentPassword"
+                          Required="true"
+                          RequiredError="Current password is required"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Class="mb-6" />
+
+            <MudTextField T="string"
+                          Label="New Password"
+                          InputType="InputType.Password"
+                          @bind-Value="resetModel.NewPassword"
+                          Required="true"
+                          RequiredError="New password is required"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Class="mb-6" />
+
+            <MudTextField T="string"
+                          Label="Confirm New Password"
+                          InputType="InputType.Password"
+                          @bind-Value="resetModel.ConfirmPassword"
+                          Required="true"
+                          RequiredError="Confirm password is required"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Class="mb-6" />
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="ChangePassword"
+                       FullWidth="false"
+                       Style="text-transform: uppercase; font-weight: 600; padding: 10px 24px;">
+                Change Password
+            </MudButton>
+        </MudForm>
     </MudPaper>
 
     <!-- Danger Zone -->
-    <MudPaper Class="pa-4 mb-4" Style="border: 1px solid red;">
+    <MudPaper Class="pa-4 mb-4" Style="border: 1px solid red;" Elevation="2">
         <MudText Typo="Typo.subtitle1" Color="Color.Error" Class="mb-2">Danger Zone</MudText>
         <MudText Typo="Typo.body2" Class="mb-4">Irreversible actions for your account</MudText>
-        <MudButton Variant="Variant.Filled" Color="Color.Error">Delete Account Permanently</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="DeleteUser">
+            Delete Account Permanently
+        </MudButton>
     </MudPaper>
 </MudContainer>
 
@@ -35,10 +74,7 @@
     private string FirstName { get; set; } = "";
     private User? user;
     private ResetPasswordModel resetModel = new();
-
-    private string CurrentPassword { get; set; } = "";
-    private string NewPassword { get; set; } = "";
-    private string ConfirmPassword { get; set; } = "";
+    private MudForm? form;
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,9 +90,39 @@
 
     private async Task ChangePassword()
     {
+        if (form is null)
+            return;
+
+        await form.Validate();
+
+        if (!form.IsValid)
+        {
+            snackbar.Add("Please fix the errors before submitting.", Severity.Error);
+            return;
+        }
+
+        if (resetModel.NewPassword != resetModel.ConfirmPassword)
+        {
+            snackbar.Add("New password and confirmation do not match.", Severity.Error);
+            return;
+        }
+
         var success = await Auth.UpdateUserPasswordAsync(resetModel);
         snackbar.Add(success ? "Password updated successfully" : "Password update failed",
                      success ? Severity.Success : Severity.Error);
     }
 
+    private async Task DeleteUser()
+    {
+        if (!Auth.CurrentUserId.HasValue)
+        {
+            snackbar.Add("No user logged in.", Severity.Error);
+            return;
+        }
+
+        await Db.DeleteUserAsync(Auth.CurrentUserId.Value);
+        Auth.Logout();
+        snackbar.Add("Your account has been permanently deleted.", Severity.Success);
+        Nav.NavigateTo("/login");
+    }
 }

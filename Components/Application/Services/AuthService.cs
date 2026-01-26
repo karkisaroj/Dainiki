@@ -59,26 +59,43 @@ namespace Dainiki.Components.Application.Services
                 NotifyStateChanged();
             }
         }
-        public async Task<bool> UpdateUserPasswordAsync(ResetPasswordModel model)
+        public async Task<bool> UpdateUserPasswordAsync(ResetPasswordModel model, bool isForgotFlow = false)
         {
-            if (!CurrentUserId.HasValue) return false;
+            User? user;
 
-            var user = await _db.GetUserByIdAsync(CurrentUserId.Value);
+            if (isForgotFlow)
+            {
+                // Forgot password: find by username
+                user = await _db.GetUserByUsernameAsync(model.Username);
+            }
+            else
+            {
+                // Logged-in reset: find by current user ID
+                if (!CurrentUserId.HasValue) return false;
+                user = await _db.GetUserByIdAsync(CurrentUserId.Value);
+            }
+
             if (user == null) return false;
 
-            // Validate current password
-            if (user.Password != model.CurrentPassword) return false;
+            // In forgot flow, skip current password check
+            if (!isForgotFlow && user.Password != model.CurrentPassword)
+                return false;
 
-            // Validate new password confirmation
-            if (model.NewPassword != model.ConfirmPassword) return false;
+            if (model.NewPassword != model.ConfirmPassword)
+                return false;
 
-            // Update in DB
-            await _db.UpdateUserPasswordAsync(CurrentUserId.Value, model.NewPassword);
+            await _db.UpdateUserPasswordAsync(user.Id, model.NewPassword);
             return true;
         }
 
+        public async Task<bool> DeleteCurrentUserAsync()
+        {
+            if (!CurrentUserId.HasValue) return false;
 
-
+            await _db.DeleteUserAsync(CurrentUserId.Value);
+            Logout(); 
+            return true;
+        }
 
         public void Logout()
         {

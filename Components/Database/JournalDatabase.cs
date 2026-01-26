@@ -139,5 +139,14 @@ namespace Dainiki.Components.Database
 
             return model;
         }
+
+        public async Task DeleteUserAsync(int userId)
+        {
+            var user = await _db.Table<User>().FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null)
+            {
+                await _db.DeleteAsync(user);
+            }
+        }
     }
 }
