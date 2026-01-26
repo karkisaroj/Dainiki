@@ -44,7 +44,7 @@
                     Selected: @string.Join(", ", SelectedTags)
                 </MudText>
 
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="ApplyFilters">
+                <MudButton Variant="Variant.Filled" Color="Color.Default" FullWidth="true" OnClick="ApplyFilters">
                     Apply Filters
                 </MudButton>
 
@@ -69,7 +69,11 @@
                     <MudPaper Class="pa-3 mb-3" Elevation="1">
                         <MudText Typo="Typo.subtitle1">@entry.Title</MudText>
                         <MudText Typo="Typo.caption">@entry.Date.ToString("ddd, MMM dd, yyyy")</MudText>
-                        <MudText Class="mt-2">@((MarkupString)entry.Content)</MudText>
+                        <MudCardContent Class="mt-2">
+                            <div class="entry-content">
+                                @((MarkupString)entry.Content)
+                            </div>
+                        </MudCardContent>
                         <MudText Typo="Typo.caption" Class="mt-1">Mood: @entry.PrimaryMood</MudText>
                         <MudText Typo="Typo.caption">Tags: @entry.Tags</MudText>
                     </MudPaper>

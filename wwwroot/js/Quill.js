@@ -27,7 +27,7 @@ window.setQuillContent = function (html) {
 
 window.getQuillContent = function () {
     if (quill) {
-        return quill.root.innerHTML;
+        return quill.root.innerHTML;    
     }
     return "";
 };

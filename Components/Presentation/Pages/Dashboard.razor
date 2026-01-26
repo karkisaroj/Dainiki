@@ -57,7 +57,7 @@
                     @if (!RecentEntries.Any())
                     {
                         <div class="text-center py-12">
-                            <MudText Typo="Typo.body1" Color="Color.Secondary">
+                            <MudText Typo="Typo.body1" Color="Color.Default">
                                 No entries yet. Start writing your first journal entry!
                             </MudText>
                         </div>
@@ -77,7 +77,7 @@
                                             @entry.Title
                                         </MudText>
                                         <MudText Typo="Typo.caption"
-                                                 Color="Color.Secondary"
+                                                 Color="Color.Default"
                                                  Class="mt-1">
                                             @entry.Date.ToString("MMM dd, yyyy") - @(entry.Time.HasValue?DateTime.Today.Add(entry.Time.Value).ToString("hh:mm tt"):"Time not set" )
                                         </MudText>
@@ -86,7 +86,7 @@
                                     <div>
                                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                                        Size="Size.Small"
-                                                       Color="Color.Secondary"
+                                                       Color="Color.Default"
                                                        OnClick="()=>EditEntry(entry)"
                                                        AriaLabel="Edit entry" />
                                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
@@ -100,7 +100,7 @@
                                 <MudStack Row="true" Spacing="1" Class="mb-3">
                                     @if (!string.IsNullOrWhiteSpace(entry.PrimaryMood))
                                     {
-                                        <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Size="Size.Small">
+                                        <MudChip T="string" Color="Color.Tertiary" Variant="Variant.Filled" Size="Size.Small">
                                             @entry.PrimaryMood
                                         </MudChip>
                                     }
@@ -109,7 +109,7 @@
                                     {
                                         foreach (var mood in entry.SecondaryMoods.Split(','))
                                         {
-                                            <MudChip T="string" Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Small">
+                                            <MudChip T="string" Color="Color.Surface" Variant="Variant.Filled" Size="Size.Small">
                                                 @mood.Trim()
                                             </MudChip>
                                         }
@@ -117,7 +117,7 @@
 
                                 </MudStack>
 
-                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="line-clamp-3">
+                                <MudText Typo="Typo.body2" Color="Color.Default" Class="line-clamp-3">
                                     @((MarkupString)entry.Content)
                                 </MudText>
 
@@ -167,14 +167,14 @@
                         New Entry
                     </MudButton>
                     <MudButton Variant="Variant.Outlined"
-                               Color="Color.Secondary"
+                               Color="Color.Tertiary"
                                FullWidth="true"
                                Href="/search"
                                StartIcon="@Icons.Material.Filled.Search">
                         View All Entries
                     </MudButton>
                     <MudButton Variant="Variant.Outlined"
-                               Color="Color.Tertiary"
+                               Color="Color.Primary"
                                FullWidth="true"
                                Href="/settings"
                                StartIcon="@Icons.Material.Filled.Settings">
@@ -185,7 +185,7 @@
 
             <MudPaper Elevation="2" Class="pa-6 mt-4">
                 <MudText Typo="Typo.h6" Color="Color.Primary" Class="mb-3">Tip of the Day</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                <MudText Typo="Typo.body2" Color="Color.Surface">
                     Writing regularly helps improve mental clarity and emotional well-being.
                     Try to journal at the same time each day to build a lasting habit.
                 </MudText>
