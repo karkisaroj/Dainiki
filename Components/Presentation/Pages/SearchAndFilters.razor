@@ -5,34 +5,51 @@
 @inject EntityService Entities
 @using Dainiki.Components.Shared.Constants
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
-    <MudText Typo="Typo.h4" Class="mb-4">Search & Filter</MudText>
-
-    <MudGrid>
-        <!-- FILTER PANEL -->
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-6">
+    <MudGrid Gutter="GutterSize.Small">
+        <!-- FILTER SIDEBAR -->
         <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4">
-                <MudText Typo="Typo.subtitle2" Class="mb-2">Search</MudText>
-                <MudTextField @bind-Value="SearchText" Placeholder="Search entries..." Variant="Variant.Outlined" Class="mb-4" />
+            <MudPaper Class="pa-6" Elevation="3">
+                <MudText Typo="Typo.h6" Class="mb-4 font-weight-bold">Filters</MudText>
+                <MudDivider Class="mb-4" />
 
-                <MudText Typo="Typo.subtitle2" Class="mb-2">Date Range</MudText>
-                <MudDateRangePicker @bind-DateRange="DateRange" Variant="Variant.Outlined" Class="mb-4" />
+                <MudTextField @bind-Value="SearchText"
+                              Label="Search"
+                              Placeholder="Search entries..."
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              FullWidth
+                              Class="mb-4" />
 
-                <MudText Typo="Typo.subtitle2" Class="mb-2">Mood</MudText>
-                <MudSelect T="string" @bind-Value="SelectedMood" Label="Select Mood" Variant="Variant.Outlined" Clearable="true" Class="mb-4">
+                <MudDateRangePicker @bind-DateRange="DateRange"
+                                    Label="Date Range"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    FullWidth
+                                    Class="mb-4" />
+
+                <MudSelect T="string"
+                           @bind-Value="SelectedMood"
+                           Label="Mood"
+                           Variant="Variant.Outlined"
+                           Clearable="true"
+                           Margin="Margin.Dense"
+                           FullWidth
+                           Class="mb-4">
                     @foreach (var mood in MoodOptions)
                     {
                         <MudSelectItem Value="@mood">@mood</MudSelectItem>
                     }
                 </MudSelect>
 
-                <MudText Typo="Typo.subtitle2" Class="mb-2">Tags</MudText>
                 <MudSelect T="string"
-                           Label="Select Tags"
+                           Label="Tags"
                            Variant="Variant.Outlined"
                            MultiSelection="true"
                            SelectedValues="SelectedTags"
                            SelectedValuesChanged="OnSelectedTagsChanged"
+                           Margin="Margin.Dense"
+                           FullWidth
                            Class="mb-4">
                     @foreach (var tag in AvailableTags)
                     {
@@ -40,43 +57,61 @@
                     }
                 </MudSelect>
 
-                <MudText Typo="Typo.caption" Class="mt-2">
-                    Selected: @string.Join(", ", SelectedTags)
-                </MudText>
 
-                <MudButton Variant="Variant.Filled" Color="Color.Default" FullWidth="true" OnClick="ApplyFilters">
-                    Apply Filters
-                </MudButton>
+                <MudStack Spacing="2">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth
+                               OnClick="ApplyFilters">
+                        Apply Filters
+                    </MudButton>
 
-                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" Class="mt-2" OnClick="ClearFilters">
-                    Clear All
-                </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Secondary"
+                               FullWidth
+                               OnClick="ClearFilters">
+                        Clear All
+                    </MudButton>
+                </MudStack>
             </MudPaper>
         </MudItem>
 
-        <!-- RESULTS -->
+        <!-- RESULTS LIST -->
         <MudItem xs="12" md="8">
-            <MudPaper Class="pa-4">
-                <MudText Typo="Typo.h6" Class="mb-4">Search Results (@FilteredEntries.Count)</MudText>
+            <MudPaper Class="pa-6" Elevation="3">
+                <MudText Typo="Typo.h6" Class="mb-4 font-weight-bold">
+                    Search Results (@FilteredEntries.Count)
+                </MudText>
+                <MudDivider Class="mb-4" />
 
                 @if (!FilteredEntries.Any())
                 {
-                    <MudText Typo="Typo.caption">No entries found.</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Error">No entries found.</MudText>
                 }
 
                 @foreach (var entry in FilteredEntries)
                 {
-                    <MudPaper Class="pa-3 mb-3" Elevation="1">
-                        <MudText Typo="Typo.subtitle1">@entry.Title</MudText>
-                        <MudText Typo="Typo.caption">@entry.Date.ToString("ddd, MMM dd, yyyy")</MudText>
-                        <MudCardContent Class="mt-2">
-                            <div class="entry-content">
+                    <MudCard Class="mb-4" Elevation="2">
+                        <MudCardHeader>
+                            <MudText Typo="Typo.subtitle1" Class="font-weight-bold">@entry.Title</MudText>
+                            <MudText Typo="Typo.caption" Class="text-secondary">
+                                @entry.Date.ToString("ddd, MMM dd, yyyy")
+                            </MudText>
+                        </MudCardHeader>
+
+                        <MudCardContent>
+                            <div class="entry-content" style="line-height:1.6; font-size:0.95rem;">
                                 @((MarkupString)entry.Content)
                             </div>
                         </MudCardContent>
-                        <MudText Typo="Typo.caption" Class="mt-1">Mood: @entry.PrimaryMood</MudText>
-                        <MudText Typo="Typo.caption">Tags: @entry.Tags</MudText>
-                    </MudPaper>
+
+                        <MudDivider />
+
+                        <MudCardActions>
+                            <MudText Typo="Typo.caption">Mood: @entry.PrimaryMood</MudText>
+                            <MudText Typo="Typo.caption" Class="ml-4">Tags: @entry.Tags</MudText>
+                        </MudCardActions>
+                    </MudCard>
                 }
             </MudPaper>
         </MudItem>
