@@ -12,10 +12,7 @@ namespace Dainiki.Components.Application.Services
         [GeneratedRegex("<.*?>")]
         internal static partial Regex HtmlTagRegex();
 
-        private string StripHtml(string html)
-        {
-            return HtmlTagRegex().Replace(html, string.Empty);
-        }
+        private static string StripHtml(string html) => HtmlTagRegex().Replace(html, string.Empty);
 
         public byte[] GenerateJournalPdf(List<EntriesModel> entries, bool includeMood, bool includeTags, bool includeCategories)
         {
@@ -34,7 +31,7 @@ namespace Dainiki.Components.Application.Services
                 y += 20;
 
                 // Content (HTML stripped)
-                var content = StripHtml(entry.Content ?? "");
+                var content = PdfExportService.StripHtml(entry.Content ?? "");
                 var lines = content.Split('\n');
                 foreach (var line in lines)
                 {

@@ -11,10 +11,7 @@ namespace Dainiki.Components.Application.Services
     {
         private readonly IJSRuntime _js;
 
-        public QuillEditorService(IJSRuntime js)
-        {
-            _js = js;
-        }
+        public QuillEditorService(IJSRuntime js) => _js = js;
         public async Task InitializeAsync()
         {
             await Task.Delay(200);

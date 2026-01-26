@@ -98,12 +98,12 @@ namespace Dainiki.Components.Database
                 })],
 
                 // Mood distribution (categorize moods into Positive, Neutral, Negative)
-                MoodData = new List<MoodInfo>
-                {
+                MoodData =
+                [
                 new() { Mood = "Positive", Value = entries.Count(e => e.PrimaryMood == "Happy" || e.PrimaryMood == "Excited" || e.PrimaryMood == "Calm") },
                 new() { Mood = "Neutral", Value = entries.Count(e => e.PrimaryMood == "Reflective" || e.PrimaryMood == "Tired") },
                 new() { Mood = "Negative", Value = entries.Count(e => e.PrimaryMood == "Sad" || e.PrimaryMood == "Angry" || e.PrimaryMood == "Stressed") }
-                },
+                ],
 
                 // Tags (split by commas and count frequency)
                 TagData = [.. entries

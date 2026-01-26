@@ -11,7 +11,7 @@ namespace Dainiki.Components.Domain.Models
         public List<TagInfo> TagData { get; set; }
         public List<CategoryInfo> CategoryData { get; set; }
 
-        public double AvgWordCount => EntryData.Any() ? EntryData.Average(e => e.Words) : 0;
+        public double AvgWordCount => EntryData.Count != 0 ? EntryData.Average(e => e.Words) : 0;
         public string TopTag => TagData.OrderByDescending(t => t.Count).FirstOrDefault()?.Tag ?? string.Empty;
         public int CurrentStreak => CalculateCurrentStreak();
         public int LongestStreak => CalculateLongestStreak();
@@ -20,10 +20,10 @@ namespace Dainiki.Components.Domain.Models
 
         public AnalyticsModel()
         {
-            MoodData = new List<MoodInfo>();
-            EntryData = new List<EntryInfo>();
-            TagData = new List<TagInfo>();
-            CategoryData = new List<CategoryInfo>();
+            MoodData = [];
+            EntryData = [];
+            TagData = [];
+            CategoryData = [];
         }
 
         private int CalculateCurrentStreak()

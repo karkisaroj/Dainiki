@@ -7,6 +7,16 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudText Typo="Typo.h4" Class="mb-6">Analytics Dashboard</MudText>
 
+    <!-- Date Range Filter -->
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.subtitle2">Filter by Date Range</MudText>
+        <MudDateRangePicker @bind-DateRange="_dateRange" Label="Select range" />
+        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="ApplyDateFilter" Class="mt-2">
+            Apply Filter
+        </MudButton>
+    </MudPaper>
+
+    <!-- Top Metrics -->
     <MudGrid Spacing="3" Class="mb-6">
         <MudItem xs="12" md="3">
             <MudPaper Class="pa-4">
@@ -38,6 +48,7 @@
         </MudItem>
     </MudGrid>
 
+    <!-- Mood Distribution + Entries Trend -->
     <MudGrid Spacing="3">
         <MudItem xs="12" md="6">
             <MudPaper Class="pa-4">
@@ -60,33 +71,31 @@
         </MudItem>
     </MudGrid>
 
-        <MudGrid Spacing="3">
-            <!-- Full-width Most Used Tags -->
-            <MudItem xs="12">
-                <MudPaper Class="pa-4">
-                    <MudText Typo="Typo.subtitle2">Most Used Tags</MudText>
-                    <MudChart ChartType="ChartType.Bar"
-                              ChartSeries="@tagSeries"
-                              XAxisLabels="@tagLabels"
-                              Width="100%" Height="400px" />
-                </MudPaper>
-            </MudItem>
+    <MudGrid Spacing="3">
+        <MudItem xs="12">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.subtitle2">Most Used Tags</MudText>
+                <MudChart ChartType="ChartType.Bar"
+                          ChartSeries="@tagSeries"
+                          XAxisLabels="@tagLabels"
+                          Width="100%" Height="400px" />
+            </MudPaper>
+        </MudItem>
 
-            <!-- Side-by-side: Tag Category Breakdown + Streak Tracking -->
-            <MudItem xs="12" md="6">
-                <MudPaper Class="pa-4">
-                    <MudText Typo="Typo.subtitle2">Tag Category Breakdown</MudText>
-                    <MudChart ChartType="ChartType.Bar"
-                              ChartSeries="@categorySeries"
-                              XAxisLabels="@analytics.CategoryData.Select(c => c.Category).ToArray()"
-                              Width="100%" Height="300px" />
-                </MudPaper>
-            </MudItem>
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.subtitle2">Tag Category Breakdown</MudText>
+                <MudChart ChartType="ChartType.Bar"
+                          ChartSeries="@categorySeries"
+                          XAxisLabels="@analytics.CategoryData.Select(c => c.Category).ToArray()"
+                          Width="100%" Height="300px" />
+            </MudPaper>
+        </MudItem>
 
-            <MudItem xs="12" md="6">
-                <MudPaper Class="pa-4">
-                    <MudText Typo="Typo.h5" Class="mb-2">Streak Tracking</MudText>
-                    <MudText Typo="Typo.subtitle2" Class="mb-4">Your journaling consistency over the last 10 days</MudText>
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h5" Class="mb-2">Streak Tracking</MudText>
+                <MudText Typo="Typo.subtitle2" Class="mb-4">Your journaling consistency over the last 10 days</MudText>
 
                 <MudGrid Spacing="2" Direction="Column">
                     <MudItem xs="12">
@@ -108,9 +117,9 @@
                         </MudPaper>
                     </MudItem>
                 </MudGrid>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
 </MudContainer>
 
 @code {
@@ -120,49 +129,76 @@
     private List<ChartSeries> tagSeries = new();
     private List<ChartSeries> categorySeries = new();
 
+    private DateRange? _dateRange = null; 
+
     protected override async Task OnInitializedAsync()
     {
         if (Auth.CurrentUserId.HasValue)
         {
-            analytics = await Entities.GetAnalyticsForUserAsync(Auth.CurrentUserId.Value);
+            await LoadAnalytics(Auth.CurrentUserId.Value);
+        }
+    }
 
-            // Build chart series responsive and more dynamic removing the static datas
-            entryTrendSeries = new List<ChartSeries>
-            {
-                new ChartSeries
+    private async Task LoadAnalytics(int userId)
+    {
+        analytics = await Entities.GetAnalyticsForUserAsync(userId);
+
+        //  Apply filter if date range is selected
+        if (_dateRange?.Start != null && _dateRange?.End != null)
+        {
+            analytics.EntryData = analytics.EntryData
+                .Where(e =>
                 {
-                    Name = "Words",
-                    Data = analytics.EntryData.Select(e => e.Words).ToArray()
-                }
-            };
+                    var entryDate = DateTime.Parse(e.Date);
+                    return entryDate >= _dateRange.Start && entryDate <= _dateRange.End;
+                })
+                .ToList();
+        }
 
-            tagSeries = new List<ChartSeries>
+        //  Build chart series dynamically
+        entryTrendSeries = new List<ChartSeries>
+        {
+            new ChartSeries
             {
-                new ChartSeries
-                {
-                    Name = "Tags",
-                    Data = analytics.TagData
-                        .OrderByDescending(t => t.Count)
-                        .Take(10)
-                        .Select(t => t.Count)
-                        .ToArray()
-                }
-            };
+                Name = "Words",
+                Data = analytics.EntryData.Select(e => e.Words).ToArray()
+            }
+        };
 
-            tagLabels = analytics.TagData
-                .OrderByDescending(t => t.Count)
-                .Take(10)
-                .Select(t => t.Tag)
-                .ToArray();
-
-            categorySeries = new List<ChartSeries>
+        tagSeries = new List<ChartSeries>
+        {
+            new ChartSeries
             {
-                new ChartSeries
-                {
-                    Name = "Categories",
-                    Data = analytics.CategoryData.Select(c => c.Count).ToArray()
-                }
-            };
+                Name = "Tags",
+                Data = analytics.TagData
+                    .OrderByDescending(t => t.Count)
+                    .Take(10)
+                    .Select(t => t.Count)
+                    .ToArray()
+            }
+        };
+
+        tagLabels = analytics.TagData
+            .OrderByDescending(t => t.Count)
+            .Take(10)
+            .Select(t => t.Tag)
+            .ToArray();
+
+        categorySeries = new List<ChartSeries>
+        {
+            new ChartSeries
+            {
+                Name = "Categories",
+                Data = analytics.CategoryData.Select(c => c.Count).ToArray()
+            }
+        };
+    }
+
+    private async Task ApplyDateFilter()
+    {
+        if (Auth.CurrentUserId.HasValue)
+        {
+            await LoadAnalytics(Auth.CurrentUserId.Value);
         }
     }
 }
