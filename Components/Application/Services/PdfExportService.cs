@@ -3,14 +3,12 @@ using PdfSharpCore.Drawing;
 using Dainiki.Components.Domain.Models;
 using HtmlAgilityPack;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Runtime.CompilerServices;
 
 namespace Dainiki.Components.Application.Services
 {
     public partial class PdfExportService
     {
-        public static byte[] GenerateJournalPdf(List<EntriesModel> entries, bool includeMood, bool includeTags, bool includeCategories)
+        public static byte[] GenerateJournalPdf(List<EntriesModel> entries)
         {
             using var doc = new PdfDocument();
             var page = doc.AddPage();
@@ -34,7 +32,7 @@ namespace Dainiki.Components.Application.Services
             foreach (var entry in entries)
             {
                 // Entry Title + Date
-                gfx.DrawString($"{entry.Date:MMM dd, yyyy} \n - {entry.Title ?? "(Untitled)"}",
+                gfx.DrawString($"{entry.Date:MMM dd, yyyy} - {entry.Title ?? "(Untitled)"}",
                     titleFont, XBrushes.Black, new XPoint(marginLeft, y));
                 y += 25;
 
@@ -43,14 +41,12 @@ namespace Dainiki.Components.Application.Services
                 var docHtml = new HtmlDocument();
                 docHtml.LoadHtml(html);
 
-                foreach (var node in docHtml.DocumentNode.DescendantsAndSelf())
+                foreach (var node in docHtml.DocumentNode.Descendants())
                 {
-                    if (node.NodeType != HtmlNodeType.Element && node.NodeType != HtmlNodeType.Text)
-                        continue;
+                    if (node.NodeType != HtmlNodeType.Element) continue;
 
                     string text = node.InnerText.Trim();
-                    if (string.IsNullOrWhiteSpace(text))
-                        continue;
+                    if (string.IsNullOrWhiteSpace(text)) continue;
 
                     XFont font = bodyFont;
                     int indent = 0;
@@ -96,20 +92,20 @@ namespace Dainiki.Components.Application.Services
                     }
                 }
 
-                // Optional metadata
-                if (includeMood && !string.IsNullOrWhiteSpace(entry.PrimaryMood))
+                // Always include metadata
+                if (!string.IsNullOrWhiteSpace(entry.PrimaryMood))
                 {
                     gfx.DrawString($"Mood: {entry.PrimaryMood}", metaFont, XBrushes.Gray, new XPoint(marginLeft, y));
                     y += 16;
                 }
 
-                if (includeTags && !string.IsNullOrWhiteSpace(entry.Tags))
+                if (!string.IsNullOrWhiteSpace(entry.Tags))
                 {
                     gfx.DrawString($"Tags: {entry.Tags}", metaFont, XBrushes.Gray, new XPoint(marginLeft, y));
                     y += 16;
                 }
 
-                if (includeCategories && !string.IsNullOrWhiteSpace(entry.PhaseOfLife))
+                if (!string.IsNullOrWhiteSpace(entry.PhaseOfLife))
                 {
                     gfx.DrawString($"Phase of Life: {entry.PhaseOfLife}", metaFont, XBrushes.Gray, new XPoint(marginLeft, y));
                     y += 16;

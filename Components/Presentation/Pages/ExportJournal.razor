@@ -6,21 +6,38 @@
 @inject AuthService Auth
 @inject IJSRuntime JS
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
-    <MudText Typo="Typo.h4" Class="mb-4">Export Journal</MudText>
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-6">
+    <!-- Page Title -->
+    <MudText Typo="Typo.h4" Class="mb-6 font-weight-bold text-primary">
+        Export Journal
+    </MudText>
 
-    <MudGrid>
+    <MudGrid Gutter="GutterSize.Small">
+        <!-- Filters Section -->
         <MudItem xs="12" md="7">
-            <MudPaper Class="pa-4 mb-4">
-                <MudText Typo="Typo.subtitle1" Class="mb-2">Select Date Range</MudText>
-                <MudDateRangePicker DateRange="DateRange" DateRangeChanged="OnDateRangeChanged" Class="mb-4" />
+            <MudPaper Class="pa-6" Elevation="2">
+                <MudText Typo="Typo.h6" Class="mb-4 font-weight-bold">Filters</MudText>
+                <MudDivider Class="mb-4" />
 
+                <!-- Date Range -->
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Select Date Range</MudText>
+                <MudDateRangePicker DateRange="DateRange"
+                                    DateRangeChanged="OnDateRangeChanged"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    FullWidth
+                                    Class="mb-4" />
+
+                <!-- Mood Filter -->
                 <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by Mood (Optional)</MudText>
                 <MudSelect T="string"
                            Label="Select Moods"
+                           Variant="Variant.Outlined"
                            MultiSelection="true"
                            SelectedValues="SelectedMoods"
                            SelectedValuesChanged="OnSelectedMoodsChanged"
+                           Margin="Margin.Dense"
+                           FullWidth
                            Class="mb-4">
                     @foreach (var mood in MoodOptions)
                     {
@@ -30,35 +47,46 @@
 
                 <MudDivider Class="my-4" />
 
+                <!-- Tag Filter -->
                 <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by Tags (Optional)</MudText>
                 <MudSelect T="string"
                            Label="Select Tags"
+                           Variant="Variant.Outlined"
                            MultiSelection="true"
                            SelectedValues="SelectedTags"
                            SelectedValuesChanged="OnSelectedTagsChanged"
+                           Margin="Margin.Dense"
+                           FullWidth
                            Class="mb-4">
                     @foreach (var tag in TagOptions)
                     {
                         <MudSelectItem Value="@tag">@tag</MudSelectItem>
                     }
                 </MudSelect>
-
-                <MudDivider Class="my-4" />
-
-                <MudText Typo="Typo.subtitle1" Class="mb-2">Include in Export</MudText>
-                <MudCheckBox T="bool" Label="Include mood data" @bind-Checked="IncludeMood" Class="mb-2" />
-                <MudCheckBox T="bool" Label="Include tags" @bind-Checked="IncludeTags" Class="mb-2" />
-                <MudCheckBox T="bool" Label="Include categories" @bind-Checked="IncludeCategories" />
             </MudPaper>
         </MudItem>
 
+        <!-- Export Summary Section -->
         <MudItem xs="12" md="5">
-            <MudPaper Class="pa-4">
-                <MudText Typo="Typo.h6" Class="mb-2">Export Summary</MudText>
-                <MudText Typo="Typo.body1">Estimated Entries: <b>@FilteredCount</b></MudText>
-                <MudText Typo="Typo.body1">Format: <b>PDF</b></MudText>
+            <MudPaper Class="pa-6" Elevation="2">
+                <MudText Typo="Typo.h6" Class="mb-4 font-weight-bold">Export Summary</MudText>
+                <MudDivider Class="mb-4" />
 
-                <MudButton Variant="Variant.Filled" Color="Color.Default" Class="mt-4" OnClick="ExportToPdf">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.body1">
+                        Estimated Entries: <b>@FilteredCount</b>
+                    </MudText>
+                    <MudText Typo="Typo.body1">
+                        Format: <b>PDF</b>
+                    </MudText>
+                </MudStack>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           Class="mt-6"
+                           FullWidth
+                           OnClick="ExportToPdf">
                     Export to PDF
                 </MudButton>
             </MudPaper>
@@ -70,15 +98,11 @@
     private DateRange DateRange = new(DateTime.Today.AddDays(-30), DateTime.Today);
     private List<string> SelectedMoods = new();
     private List<string> SelectedTags = new();
-    private bool IncludeMood = true;
-    private bool IncludeTags = true;
-    private bool IncludeCategories = true;
     private int FilteredCount = 0;
 
     private readonly List<string> MoodOptions = new() { "Happy", "Joyful", "Calm", "Stressed", "Anxious", "Motivated" };
     private readonly List<string> TagOptions = new() { "#productivity", "#work", "#goals", "#reflection", "#planning", "#challenges" };
 
-    // Centralized filter logic
     private async Task ApplyFilters()
     {
         if (!Auth.CurrentUserId.HasValue) return;
@@ -96,10 +120,9 @@
         ).ToList();
 
         FilteredCount = entries.Count;
-        StateHasChanged(); // force UI refresh
+        StateHasChanged();
     }
 
-    // Event handlers that trigger ApplyFilters
     private async void OnSelectedMoodsChanged(IEnumerable<string> values)
     {
         SelectedMoods = values.ToList();
@@ -118,7 +141,6 @@
         await ApplyFilters();
     }
 
-    // Export button
     private async Task ExportToPdf()
     {
         if (!Auth.CurrentUserId.HasValue) return;
@@ -137,13 +159,12 @@
 
         FilteredCount = entries.Count;
 
-        var pdfBytes = PdfExportService.GenerateJournalPdf(entries, IncludeMood, IncludeTags, IncludeCategories);
+        var pdfBytes = PdfExportService.GenerateJournalPdf(entries);
         var base64 = Convert.ToBase64String(pdfBytes);
 
-        await JS.InvokeVoidAsync("saveFile", "journal-export.pdf", base64);
+        await JS.InvokeVoidAsync("saveFile", "Dainiki-export.pdf", base64);
     }
 
-    // Initialize filter count when page loads
     protected override async Task OnInitializedAsync()
     {
         await ApplyFilters();
