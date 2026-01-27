@@ -27,7 +27,7 @@ namespace Dainiki
             builder.Services.AddScoped<EntityService>();
             builder.Services.AddScoped<EntityMetricsCalculator>();
             builder.Services.AddScoped<PdfExportService>();
-
+            builder.Services.AddScoped<ThemeService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
