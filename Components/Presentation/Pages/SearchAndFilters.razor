@@ -110,7 +110,11 @@
 
                         <MudCardActions>
                             <MudText Typo="Typo.caption">Mood: @entry.PrimaryMood</MudText>
-                            <MudText Typo="Typo.caption" Class="ml-4">Tags: @entry.Tags</MudText>
+                            <MudText Typo="Typo.caption" Class="ml-4">
+                                Tags: @((string.IsNullOrWhiteSpace(entry.Tags))
+                                                            ? "None"
+                                                            : string.Join(", ", entry.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim())))
+                        </MudText>
                         </MudCardActions>
                     </MudCard>
                 }
@@ -136,41 +140,58 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Auth.CurrentUserId.HasValue)
+        try
         {
-            AllEntries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
-            FilteredEntries = AllEntries;
-            AvailableTags = AllEntries
-                .SelectMany(e => (e.Tags ?? "")
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(t => t.Trim()))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(t => t)
-                .ToList();
+            if (Auth.CurrentUserId.HasValue)
+            {
+                AllEntries = await Entities.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+                FilteredEntries = AllEntries;
+
+                AvailableTags = AllEntries
+                    .Where(e => !string.IsNullOrWhiteSpace(e.Tags))
+                    .SelectMany(e => e.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim()))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(t => t)
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading entries: {ex.Message}");
+            AvailableTags = new List<string>(); 
         }
     }
 
     private void ApplyFilters()
     {
-        FilteredEntries = AllEntries.Where(e =>
-            (string.IsNullOrWhiteSpace(SearchText)
-                || e.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
-                || e.Content.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+        try
+        {
+            FilteredEntries = AllEntries.Where(e =>
+                (string.IsNullOrWhiteSpace(SearchText)
+                    || e.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                    || e.Content.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
 
-            && (string.IsNullOrWhiteSpace(SelectedMood)
-                || e.PrimaryMood == SelectedMood)
+                && (string.IsNullOrWhiteSpace(SelectedMood)
+                    || e.PrimaryMood == SelectedMood)
 
-            && (!SelectedTags.Any() || SelectedTags.All(tag =>
-                (e.Tags ?? "")
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(t => t.Trim().ToLowerInvariant())
-                    .Contains(tag.ToLowerInvariant())))
+                && (!SelectedTags.Any() || SelectedTags.All(tag =>
+                    (e.Tags ?? "")
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim().ToLowerInvariant())
+                        .Contains(tag.ToLowerInvariant())))
 
-            && (DateRange.Start == null || DateRange.End == null ||
-                (e.Date >= DateRange.Start && e.Date <= DateRange.End))
-        ).ToList();
-    }
-
+                && (DateRange.Start == null || DateRange.End == null ||
+                    (e.Date >= DateRange.Start && e.Date <= DateRange.End))
+            ).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error applying filters: {ex.Message}");
+            FilteredEntries = AllEntries; 
+        }
+        }
+       
     private void ClearFilters()
     {
         SearchText = string.Empty;
@@ -184,4 +205,4 @@
     {
         SelectedTags = selectedValues.ToList();
     }
-}
+   }
