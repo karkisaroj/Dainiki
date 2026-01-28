@@ -5,6 +5,7 @@
 @inject NavigationManager Navigation
 @inject AuthService Auth
 @inject EntityService Entity
+@inject ISnackbar Snackbar
 
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-6">
@@ -113,11 +114,16 @@
         Navigation.NavigateTo($"/addentry/{entry.Id}");
     }
 
-    private void DeleteEntry(EntriesModel entry)
+    private async Task DeleteEntry(EntriesModel entry)
     {
-        AllEntries.Remove(entry);
+        await Entity.DeleteEntryAsync(entry.Id);
+        if (Auth.CurrentUserId.HasValue)
+        {
+            AllEntries = await Entity.GetEntriesByUserAsync(Auth.CurrentUserId.Value);
+        }
         StateHasChanged();
-    }
+        Snackbar.Add("Deleted successfully", Severity.Success);
+    }   
 
    
 }
