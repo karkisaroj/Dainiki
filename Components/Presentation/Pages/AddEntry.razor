@@ -137,7 +137,7 @@
     [Parameter] public int? Id { get; set; }
     private string PreviewContent = "";
     private string Title = "";
-    private string PrimaryMood = "";
+    private string PrimaryMood = "";//in default it is happy in case no primary mood is saved
     private List<string> SecondaryMoods = new();
     private string PhaseOfLife = "";
     private string Tags = "";
@@ -231,10 +231,16 @@
                 snackbar.Add("Please provide either custom tags or choose predefined tags", Severity.Error);
                 return;
             }
+
             Console.WriteLine($"Checking for entry on {DateTime.UtcNow.Date} for user {Auth.CurrentUserId}"); 
             if (!Id.HasValue && todayEntry != null)
             {
                 snackbar.Add("You can only create one entry per day.", Severity.Error);
+                return;
+            }
+            if (PrimaryMood == "")
+            {
+                snackbar.Add("Primary mood cannot be empty", Severity.Error);
                 return;
             }
             var entry = new EntriesModel
